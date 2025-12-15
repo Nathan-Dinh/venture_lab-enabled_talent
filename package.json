@@ -1,0 +1,47 @@
+{
+  "name": "venture_lab",
+  "version": "1.0.0",
+  "description": "Venture lab enabled talent",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*",
+    "packages/@venture_lab/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run --workspace frontend dev\" \"npm run --workspace backend dev\"",
+    "build": "npm run --workspace frontend build && npm run --workspace backend build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nathan-Dinh/venture_lab-enabled_talent.git"
+  },
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Nathan-Dinh/venture_lab-enabled_talent/issues"
+  },
+  "homepage": "https://github.com/Nathan-Dinh/venture_lab-enabled_talent#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.38.0",
+    "@nuxt/eslint-config": "^1.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "@venture_lab/eslint-config": "workspace:*",
+    "@venture_lab/models": "workspace:*",
+    "@venture_lab/tsconfig": "workspace:*",
+    "c8": "^10.1.3",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-vue": "^10.5.1",
+    "globals": "^16.4.0",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2"
+  }
+}

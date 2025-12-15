@@ -1,0 +1,15 @@
+{
+  "name": "@venture_lab/models",
+  "version": "1.0.0",
+  "description": "Shared data models and types for Enable Talent platform",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.ts",
+      "types": "./index.ts"
+    }
+  },
+  "files": [
+    "index.ts"
+  ]
+}

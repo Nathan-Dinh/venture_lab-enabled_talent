@@ -1,0 +1,160 @@
+# ============================================================================
+# Build & Framework Outputs
+# ============================================================================
+dist
+dist-ssr
+build
+.nuxt
+.output
+.nitro
+.cache
+.vercel
+.next
+out
+*.tsbuildinfo
+.vite-inspect
+
+# ============================================================================
+# Dependencies
+# ============================================================================
+node_modules
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ============================================================================
+# Environment & Secrets
+# ============================================================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.production.local
+.env.development.local
+.env.test.local
+!.env.example
+*.pem
+*.key
+*.cert
+
+# ============================================================================
+# IDE & Editor
+# ============================================================================
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# IntelliJ IDEs
+.idea
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# vim
+.vim
+*.swp
+*.swo
+*~
+
+# Emacs
+\#*\#
+.\#*
+
+# Fleet
+.fleet
+
+# ============================================================================
+# Operating System
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+*~
+
+# ============================================================================
+# Logs & Debugging
+# ============================================================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ============================================================================
+# Testing & Coverage
+# ============================================================================
+coverage
+.nyc_output
+lcov.info
+
+# ============================================================================
+# Runtime & Temp Files
+# ============================================================================
+.vite
+.turbo
+.turbopack
+.lighthouse
+.lighthouseci
+.data
+tmp
+temp
+*.tmp
+.wrangler
+
+# ============================================================================
+# Miscellaneous
+# ============================================================================
+# Sentry
+.sentryclirc
+
+# Storybook
+storybook-static
+
+# Local Netlify folder
+.netlify
+
+# Playwright
+test-results
+playwright-report
+playwright/.cache
