@@ -25,11 +25,3 @@
     </p>
   </div>
 </template>
-
-<script setup>
-// Nothing needed for now
-</script>
-
-<style scoped>
-/* You can customize transitions or add local styles here */
-</style>
