@@ -55,7 +55,47 @@ interface ProfessionalInfoData {
   bio: string;
 }
 
-defineProps<{
+const props = defineProps<{
   formData: ProfessionalInfoData;
 }>();
+
+// Two-way bound validation error model
+const validationError = defineModel<string>('validationError', { default: '' });
+
+// Validation function
+const validate = (): boolean => {
+  validationError.value = '';
+
+  if (!props.formData.headline.trim()) {
+    validationError.value = 'Please enter your professional headline.';
+    return false;
+  }
+  if (!props.formData.experience) {
+    validationError.value = 'Please select your years of experience.';
+    return false;
+  }
+  if (!props.formData.bio.trim()) {
+    validationError.value = 'Please write a bio about yourself.';
+    return false;
+  }
+  if (props.formData.bio.trim().length < 50) {
+    validationError.value = 'Your bio should be at least 50 characters long.';
+    return false;
+  }
+
+  return true;
+};
+
+// Expose validate method to parent
+defineExpose({ validate });
+
+// Watch for changes to clear errors when user corrects input
+watch(
+  () => [props.formData.headline, props.formData.experience, props.formData.bio],
+  () => {
+    if (validationError.value) {
+      validate();
+    }
+  }
+);
 </script>

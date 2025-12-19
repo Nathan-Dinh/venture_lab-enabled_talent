@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-orange-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-8 px-4"
+    class="min-h-screen bg-linear-to-br from-orange-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-8 px-4"
   >
     <div class="max-w-2xl mx-auto">
       <!-- Header -->
@@ -28,29 +28,37 @@
 
       <!-- Steps Container -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+        <!-- Validation Error Message -->
+        <div
+          v-if="validationError"
+          class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg"
+        >
+          {{ validationError }}
+        </div>
+
         <!-- Step 1: Professional Info -->
         <div v-show="currentStep === 1" class="space-y-6">
-          <JourneySetupMentorProfessionalInfo :form-data="formData" />
+          <JourneySetupMentorProfessionalInfo ref="step1Ref" :form-data="formData" v-model:validationError="validationError" />
         </div>
 
         <!-- Step 2: Skills -->
         <div v-show="currentStep === 2" class="space-y-6">
-          <JourneySetupMentorSkills :form-data="formData" />
+          <JourneySetupMentorSkills ref="step2Ref" :form-data="formData" v-model:validationError="validationError" />
         </div>
 
         <!-- Step 3: Pricing -->
         <div v-show="currentStep === 3" class="space-y-6">
-          <JourneySetupMentorPricing :form-data="formData" />
+          <JourneySetupMentorPricing ref="step3Ref" :form-data="formData" v-model:validationError="validationError" />
         </div>
 
         <!-- Step 4: Availability -->
         <div v-show="currentStep === 4" class="space-y-6">
-          <JourneySetupMentorAvailability :form-data="formData" />
+          <JourneySetupMentorAvailability ref="step4Ref" :form-data="formData" v-model:validationError="validationError" />
         </div>
 
         <!-- Step 5: Confirmation -->
         <div v-show="currentStep === 5" class="space-y-6">
-          <JourneySetupMentorReview :form-data="formData" />
+          <JourneySetupMentorReview ref="step5Ref" :form-data="formData" v-model:validationError="validationError" />
         </div>
 
         <!-- Navigation Buttons -->
@@ -66,7 +74,7 @@
           <button
             v-if="currentStep < totalSteps"
             @click="nextStep"
-            class="ml-auto px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:shadow-lg transition font-medium"
+            class="ml-auto px-8 py-3 bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:shadow-lg transition font-medium"
           >
             Continue
           </button>
@@ -74,7 +82,7 @@
           <button
             v-else
             @click="completeSetup"
-            class="ml-auto px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-medium"
+            class="ml-auto px-8 py-3 bg-linear-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-medium"
           >
             Complete Setup
           </button>
@@ -86,36 +94,17 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import type JourneySetupMentorProfessionalInfo from '~/components/journey/setup/JourneySetupMentorProfessionalInfo.vue';
+import type JourneySetupMentorSkills from '~/components/journey/setup/JourneySetupMentorSkills.vue';
+import type JourneySetupMentorPricing from '~/components/journey/setup/JourneySetupMentorPricing.vue';
+import type JourneySetupMentorAvailability from '~/components/journey/setup/JourneySetupMentorAvailability.vue';
+import type JourneySetupMentorReview from '~/components/journey/setup/JourneySetupMentorReview.vue';
 
-const router = useRouter();
 const currentStep = ref(1);
 const totalSteps = 5;
-const skillInput = ref('');
+const validationError = ref('');
 
-interface AvailabilitySlot {
-  enabled: boolean;
-  startTime: string;
-  endTime: string;
-}
-
-interface SessionTier {
-  name: string;
-  duration: number;
-  rate: number;
-}
-
-const formData = reactive<{
-  headline: string;
-  experience: string;
-  bio: string;
-  skills: string[];
-  expertise: string[];
-  hourlyRate: number | null;
-  tiers: SessionTier[];
-  timezone: string;
-  availability: Record<string, AvailabilitySlot>;
-}>({
+const formData = reactive({
   headline: '',
   experience: '',
   bio: '',
@@ -138,38 +127,39 @@ const formData = reactive<{
   },
 });
 
-const addSkill = () => {
-  if (skillInput.value.trim() && !formData.skills.includes(skillInput.value.trim())) {
-    formData.skills.push(skillInput.value.trim());
-    skillInput.value = '';
-  }
-};
+// Template refs for each step component
+const step1Ref = ref<InstanceType<typeof JourneySetupMentorProfessionalInfo>>();
+const step2Ref = ref<InstanceType<typeof JourneySetupMentorSkills>>();
+const step3Ref = ref<InstanceType<typeof JourneySetupMentorPricing>>();
+const step4Ref = ref<InstanceType<typeof JourneySetupMentorAvailability>>();
+const step5Ref = ref<InstanceType<typeof JourneySetupMentorReview>>();
 
-const removeSkill = (index: number) => {
-  formData.skills.splice(index, 1);
-};
+// Simplified validation - delegates to component
+const validateStep = (step: number): boolean => {
+  const refs = [step1Ref, step2Ref, step3Ref, step4Ref, step5Ref];
+  const componentRef = refs[step - 1];
 
-const addTier = () => {
-  formData.tiers.push({ name: '', duration: 60, rate: 0 });
-};
-
-const removeTier = (index: number) => {
-  formData.tiers.splice(index, 1);
+  if (!componentRef?.value) return true;
+  return componentRef.value.validate();
 };
 
 const nextStep = () => {
-  if (currentStep.value < totalSteps) {
-    currentStep.value++;
+  if (validateStep(currentStep.value)) {
+    if (currentStep.value < totalSteps) {
+      currentStep.value++;
+      validationError.value = '';
+    }
   }
 };
 
 const previousStep = () => {
   if (currentStep.value > 1) {
     currentStep.value--;
+    validationError.value = '';
   }
 };
 
 const completeSetup = async () => {
-  await router.push('/dashboard');
+  await navigateTo('/dashboard');
 };
 </script>

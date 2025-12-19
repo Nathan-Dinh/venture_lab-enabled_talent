@@ -2,35 +2,35 @@
   <div class="space-y-6">
     <!-- Review Summary -->
     <div
-      class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-6"
+      class="bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700 rounded-lg p-6"
     >
-      <h3 class="text-lg font-bold text-blue-900 dark:text-blue-100 mb-4">
+      <h3 class="text-lg font-bold text-orange-900 dark:text-orange-100 mb-4">
         Review Your Profile
       </h3>
 
       <div class="space-y-4 text-sm">
         <div>
-          <p class="text-blue-800 dark:text-blue-200 font-semibold">Current Role</p>
-          <p class="text-blue-700 dark:text-blue-300">{{ formData.currentRole }}</p>
+          <p class="text-orange-800 dark:text-orange-200 font-semibold">Current Role</p>
+          <p class="text-orange-700 dark:text-orange-300">{{ formData.currentRole }}</p>
         </div>
         <div>
-          <p class="text-blue-800 dark:text-blue-200 font-semibold">Goals</p>
-          <p class="text-blue-700 dark:text-blue-300">
+          <p class="text-orange-800 dark:text-orange-200 font-semibold">Goals</p>
+          <p class="text-orange-700 dark:text-orange-300">
             {{ formData.goals.substring(0, 150)
             }}{{ formData.goals.length > 150 ? '...' : '' }}
           </p>
         </div>
         <div>
-          <p class="text-blue-800 dark:text-blue-200 font-semibold">Skills to Learn</p>
-          <p class="text-blue-700 dark:text-blue-300">{{ formData.skills.join(', ') }}</p>
+          <p class="text-orange-800 dark:text-orange-200 font-semibold">Skills to Learn</p>
+          <p class="text-orange-700 dark:text-orange-300">{{ formData.skills.join(', ') }}</p>
         </div>
         <div>
-          <p class="text-blue-800 dark:text-blue-200 font-semibold">Learning Style</p>
-          <p class="text-blue-700 dark:text-blue-300">{{ formData.learningStyle }}</p>
+          <p class="text-orange-800 dark:text-orange-200 font-semibold">Learning Style</p>
+          <p class="text-orange-700 dark:text-orange-300">{{ formData.learningStyle }}</p>
         </div>
         <div>
-          <p class="text-blue-800 dark:text-blue-200 font-semibold">Frequency</p>
-          <p class="text-blue-700 dark:text-blue-300">{{ formData.frequency }}</p>
+          <p class="text-orange-800 dark:text-orange-200 font-semibold">Frequency</p>
+          <p class="text-orange-700 dark:text-orange-300">{{ formData.frequency }}</p>
         </div>
       </div>
     </div>
@@ -60,4 +60,16 @@ interface ReviewData {
 defineProps<{
   formData: ReviewData;
 }>();
+
+// Two-way bound validation error model (for consistency)
+const validationError = defineModel<string>('validationError', { default: '' });
+
+// Validation function - Review step has no validation requirements
+const validate = (): boolean => {
+  validationError.value = '';
+  return true;
+};
+
+// Expose validate method to parent
+defineExpose({ validate });
 </script>

@@ -7,7 +7,7 @@
       </label>
       <select
         v-model="formData.timezone"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
       >
         <option value="">Select your timezone</option>
         <option value="EST">EST (Eastern Standard Time)</option>
@@ -28,7 +28,7 @@
       </label>
       <select
         v-model="formData.budget"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
       >
         <option value="">What's your budget range?</option>
         <option value="0-50">$0-$50</option>
@@ -90,7 +90,43 @@ interface PreferencesData {
   frequency: string;
 }
 
-defineProps<{
+const props = defineProps<{
   formData: PreferencesData;
 }>();
+
+// Two-way bound validation error model
+const validationError = defineModel<string>('validationError', { default: '' });
+
+// Validation function
+const validate = (): boolean => {
+  validationError.value = '';
+
+  if (!props.formData.timezone) {
+    validationError.value = 'Please select your timezone.';
+    return false;
+  }
+  if (!props.formData.budget) {
+    validationError.value = 'Please select your budget per session.';
+    return false;
+  }
+  if (!props.formData.frequency) {
+    validationError.value = 'Please select your preferred session frequency.';
+    return false;
+  }
+
+  return true;
+};
+
+// Expose validate method to parent
+defineExpose({ validate });
+
+// Watch for changes to clear errors when user corrects input
+watch(
+  () => [props.formData.timezone, props.formData.budget, props.formData.frequency],
+  () => {
+    if (validationError.value) {
+      validate();
+    }
+  }
+);
 </script>

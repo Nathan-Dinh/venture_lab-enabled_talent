@@ -87,7 +87,42 @@ interface AvailabilityData {
   availability: Record<string, AvailabilitySlot>;
 }
 
-defineProps<{
+const props = defineProps<{
   formData: AvailabilityData;
 }>();
+
+// Two-way bound validation error model
+const validationError = defineModel<string>('validationError', { default: '' });
+
+// Validation function
+const validate = (): boolean => {
+  validationError.value = '';
+
+  if (!props.formData.timezone) {
+    validationError.value = 'Please select your timezone.';
+    return false;
+  }
+
+  const hasAvailability = Object.values(props.formData.availability).some((slot) => slot.enabled);
+  if (!hasAvailability) {
+    validationError.value = 'Please select at least one day when you are available.';
+    return false;
+  }
+
+  return true;
+};
+
+// Expose validate method to parent
+defineExpose({ validate });
+
+// Watch for changes to clear errors when user corrects input
+watch(
+  () => [props.formData.timezone, props.formData.availability],
+  () => {
+    if (validationError.value) {
+      validate();
+    }
+  },
+  { deep: true }
+);
 </script>

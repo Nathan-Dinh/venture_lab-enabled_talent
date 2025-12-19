@@ -40,7 +40,7 @@
         <div class="flex items-center justify-between">
           <FormCheckbox id="remember-me" v-model="rememberMe" label="Remember me" />
 
-          <NuxtLink to="/forgot-password" class="text-sm text-blue-600 hover:underline">
+          <NuxtLink to="/forgot-password" class="text-sm text-orange-600 hover:underline">
             Forgot password?
           </NuxtLink>
         </div>
@@ -48,14 +48,14 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+          class="w-full bg-orange-600 text-white py-2.5 rounded-lg font-semibold hover:bg-orange-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {{ isLoading ? 'Logging in...' : 'Login' }}
         </button>
 
         <p class="text-center text-gray-600 text-sm mt-4">
           Don't have an account?
-          <NuxtLink to="/signup" class="text-blue-600 hover:underline">Sign up</NuxtLink>
+          <NuxtLink to="/signup" class="text-orange-600 hover:underline">Sign up</NuxtLink>
         </p>
       </form>
     </div>

@@ -9,7 +9,7 @@
         v-model="formData.currentRole"
         type="text"
         placeholder="e.g., Junior Developer, Product Manager, Startup Founder"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
       />
     </div>
 
@@ -20,7 +20,7 @@
       </label>
       <select
         v-model="formData.experience"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
       >
         <option value="">Select your experience level</option>
         <option value="0-1">0-1 years (Just starting)</option>
@@ -40,7 +40,7 @@
         v-model="formData.location"
         type="text"
         placeholder="City, Country"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
       />
     </div>
   </div>
@@ -53,7 +53,43 @@ interface PersonalInfoData {
   location: string;
 }
 
-defineProps<{
+const props = defineProps<{
   formData: PersonalInfoData;
 }>();
+
+// Two-way bound validation error model
+const validationError = defineModel<string>('validationError', { default: '' });
+
+// Validation function
+const validate = (): boolean => {
+  validationError.value = '';
+
+  if (!props.formData.currentRole.trim()) {
+    validationError.value = 'Please enter your current role.';
+    return false;
+  }
+  if (!props.formData.experience) {
+    validationError.value = 'Please select your years of experience.';
+    return false;
+  }
+  if (!props.formData.location.trim()) {
+    validationError.value = 'Please enter your location.';
+    return false;
+  }
+
+  return true;
+};
+
+// Expose validate method to parent
+defineExpose({ validate });
+
+// Watch for changes to clear errors when user corrects input
+watch(
+  () => [props.formData.currentRole, props.formData.experience, props.formData.location],
+  () => {
+    if (validationError.value) {
+      validate();
+    }
+  }
+);
 </script>

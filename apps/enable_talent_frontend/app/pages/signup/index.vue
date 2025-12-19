@@ -1,9 +1,8 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+  <div class="min-h-screen flex items-center justify-center bg-gray-50">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
       <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Create Your Account</h2>
 
-      <!-- Error message -->
       <div
         v-if="error"
         class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4"
@@ -11,152 +10,140 @@
         {{ error }}
       </div>
 
+      <div
+        v-if="successMessage"
+        class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4"
+      >
+        {{ successMessage }}
+      </div>
+
       <form @submit.prevent="handleSignup" class="space-y-5">
-        <div>
-          <Label>Register as</Label>
-          <div class="flex gap-3 mt-2">
-            <Button
-              type="button"
-              variant="outline"
-              class="flex-1"
-              :class="
-                role === 'user' ? 'border-blue-500 bg-blue-50 text-blue-600 font-semibold' : ''
-              "
-              @click="role = 'user'"
-            >
-              User
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              class="flex-1"
-              :class="
-                role === 'mentor' ? 'border-blue-500 bg-blue-50 text-blue-600 font-semibold' : ''
-              "
-              @click="role = 'mentor'"
-            >
-              Mentor
-            </Button>
-          </div>
-        </div>
+        <FormRoleSelector v-model="role" label="Register as" />
 
-        <div>
-          <Label for="name">Full Name</Label>
-          <Input id="name" type="text" placeholder="Jane Doe" v-model="name" required />
-          <p v-if="nameState === 'invalid'" class="text-red-500 text-sm mt-1">{{ nameErrMsg }}</p>
-        </div>
+        <FormTextInput
+          id="name"
+          v-model="name"
+          type="text"
+          label="Full Name"
+          placeholder="Jane Doe"
+          required
+        />
 
-        <div>
-          <Label for="email">Email</Label>
-          <Input id="email" type="email" placeholder="you@example.com" v-model="email" required />
-          <p v-if="emailState === 'invalid'" class="text-red-500 text-sm mt-1">{{ emailErrMsg }}</p>
-        </div>
+        <FormEmailInput
+          id="email"
+          v-model:value="email"
+          v-model:error="emailError"
+          label="Email"
+          placeholder="you@example.com"
+          required
+        />
 
-        <div>
-          <Label for="password">Password</Label>
-          <Input id="password" type="password" placeholder="••••••••" v-model="password" required />
-          <p v-if="passwordState === 'invalid'" class="text-red-500 text-sm mt-1">
-            {{ passwordErrMsg }}
-          </p>
-        </div>
-        <div v-if="role === 'mentor'" class="space-y-4"></div>
+        <FormTextInput
+          id="password"
+          v-model="password"
+          type="password"
+          label="Password"
+          required
+        />
 
-        <!-- Submit Button -->
-        <Button
+        <button
           type="submit"
-          class="w-full bg-blue-600 text-white hover:bg-blue-700"
-          :disabled="!formState || isLoading"
+          :disabled="isLoading"
+          class="w-full bg-orange-600 text-white py-2.5 rounded-lg font-semibold hover:bg-orange-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {{ isLoading ? 'Creating Account...' : 'Sign Up' }}
-        </Button>
+        </button>
 
-        <!-- Login Link -->
-        <p class="text-center text-sm text-gray-600 mt-4">
+        <p class="text-center text-gray-600 text-sm mt-4">
           Already have an account?
-          <NuxtLink to="/login" class="text-blue-600 hover:underline">Login</NuxtLink>
+          <NuxtLink to="/login" class="text-orange-600 hover:underline">Login</NuxtLink>
         </p>
       </form>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue';
-const store = useSignUpJourneyStore();
 
 const name = ref('');
 const email = ref('');
 const password = ref('');
-const nameErrMsg = ref('');
-const emailErrMsg = ref('');
-const passwordErrMsg = ref('');
-const role = ref<'user' | 'mentor'>('user');
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const nameState = computed<'valid' | 'invalid' | ''>(() => {
-  if (name.value === '') return '';
-  return name.value ? 'valid' : 'invalid';
-});
-
-const emailState = computed<'valid' | 'invalid' | ''>(() => {
-  if (email.value === '') return '';
-  if (!emailRegex.test(email.value)) {
-    emailErrMsg.value = 'Please enter a valid email address.';
-    return 'invalid';
-  }
-  return 'valid';
-});
-
-const passwordState = computed<'valid' | 'invalid' | ''>(() => {
-  if (password.value === '') return '';
-  if (password.value.length < 8) {
-    passwordErrMsg.value = 'Password must be at least 8 characters long.';
-    return 'invalid';
-  }
-  if (!/[A-Za-z]/.test(password.value)) {
-    passwordErrMsg.value = 'Password must include at least one letter.';
-    return 'invalid';
-  }
-  if (!/\d/.test(password.value)) {
-    passwordErrMsg.value = 'Password must include at least one number.';
-    return 'invalid';
-  }
-  if (!/[A-Z]/.test(password.value)) {
-    passwordErrMsg.value = 'Password must include at least one captilized letter.';
-    return 'invalid';
-  }
-  return 'valid';
-});
-
-const formState = computed(() => {
-  if (
-    nameState.value === 'valid' &&
-    emailState.value === 'valid' &&
-    passwordState.value === 'valid'
-  )
-    return true;
-  else return false;
-});
+const role = ref('user');
 
 const isLoading = ref(false);
 const error = ref('');
+const successMessage = ref('');
 
-const handleSignup = () => {
-  isLoading.value = true;
+const emailError = ref('');
 
-  if (formState.value) {
-    if (role.value === 'mentor') {
-      store.type = 'mentor';
-      store.name = 'John Doe';
-      store.email = 'john@example.com';
-      store.pass = 'password123';
-      navigateTo('/journey/setup/mentor');
-    } else {
-      navigateTo('/journey/setup/user');
-    }
+const handleSignup = async () => {
+  error.value = '';
+  successMessage.value = '';
+
+  // Validate fields before submission
+  if (emailError.value) {
+    error.value = 'Please fix the errors before submitting.';
+    return;
   }
 
-  isLoading.value = false;
+  isLoading.value = true;
+
+  try {
+    const { data: res, error: fetchError } = await useFetch('/api/auth/signup', {
+      method: 'POST',
+      body: {
+        name: name.value,
+        email: email.value,
+        password: password.value,
+        role: role.value === 'mentor' ? 'Mentor' : 'User',
+      },
+    });
+
+    isLoading.value = false;
+
+    if (fetchError.value) {
+      const status = fetchError.value.statusCode;
+
+      const errorMessages = {
+        409: 'An account with this email already exists.',
+        400: 'Invalid signup information. Please check your details.',
+        429: 'Too many signup attempts. Please try again later.',
+        500: 'Server error. Please try again later.',
+      };
+
+      if (!navigator.onLine) {
+        error.value = 'No internet connection. Please check your network.';
+      } else {
+        error.value = errorMessages[status] || fetchError.value.data?.error || 'Signup failed. Please try again.';
+      }
+      return;
+    }
+
+    // Handle successful signup
+    if (res.value?.success && res.value?.data?.token) {
+      const tokenCookie = useCookie('token', {
+        maxAge: 60 * 60 * 24, // 1 day
+      });
+
+      tokenCookie.value = res.value.data.token;
+      successMessage.value = 'Account created successfully! Redirecting...';
+
+      setTimeout(() => {
+        navigateTo('/dashboard');
+      }, 1000);
+    } else {
+      error.value = res.value?.error || 'Signup failed. Please try again.';
+    }
+  } catch (err) {
+    isLoading.value = false;
+    console.error('Signup error:', err);
+
+    if (!navigator.onLine) {
+      error.value = 'No internet connection. Please check your network and try again.';
+    } else {
+      error.value = 'An unexpected error occurred. Please try again.';
+    }
+  }
 };
 </script>

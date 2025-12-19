@@ -123,4 +123,16 @@ interface MentorFormData {
 defineProps<{
   formData: MentorFormData;
 }>();
+
+// Two-way bound validation error model (for consistency)
+const validationError = defineModel<string>('validationError', { default: '' });
+
+// Validation function - Review step has no validation requirements
+const validate = (): boolean => {
+  validationError.value = '';
+  return true;
+};
+
+// Expose validate method to parent
+defineExpose({ validate });
 </script>

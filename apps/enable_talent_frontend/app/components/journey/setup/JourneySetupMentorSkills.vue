@@ -52,6 +52,9 @@ const props = defineProps<{
   formData: SkillsData;
 }>();
 
+// Two-way bound validation error model
+const validationError = defineModel<string>('validationError', { default: '' });
+
 const skillInput = ref('');
 
 const addSkill = () => {
@@ -64,4 +67,33 @@ const addSkill = () => {
 const removeSkill = (index: number) => {
   props.formData.skills.splice(index, 1);
 };
+
+// Validation function
+const validate = (): boolean => {
+  validationError.value = '';
+
+  if (props.formData.skills.length === 0) {
+    validationError.value = 'Please add at least one skill you can mentor in.';
+    return false;
+  }
+  if (props.formData.skills.length < 3) {
+    validationError.value = 'Please add at least 3 skills to help mentees find you.';
+    return false;
+  }
+
+  return true;
+};
+
+// Expose validate method to parent
+defineExpose({ validate });
+
+// Watch for changes to clear errors when user corrects input
+watch(
+  () => props.formData.skills.length,
+  () => {
+    if (validationError.value) {
+      validate();
+    }
+  }
+);
 </script>

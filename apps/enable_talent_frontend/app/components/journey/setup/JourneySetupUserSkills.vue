@@ -14,11 +14,11 @@
           @keypress.enter="addSkill"
           type="text"
           placeholder="e.g., React, Project Management, Public Speaking"
-          class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         />
         <button
           @click="addSkill"
-          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium"
+          class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition font-medium"
         >
           Add
         </button>
@@ -27,12 +27,12 @@
         <span
           v-for="(skill, idx) in formData.skills"
           :key="idx"
-          class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm flex items-center gap-2"
+          class="px-3 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded-full text-sm flex items-center gap-2"
         >
           {{ skill }}
           <button
             @click="removeSkill(idx)"
-            class="text-blue-600 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-100"
+            class="text-orange-600 dark:text-orange-300 hover:text-orange-800 dark:hover:text-orange-100"
           >
             ✕
           </button>
@@ -47,7 +47,7 @@
       </label>
       <select
         v-model="formData.learningStyle"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
       >
         <option value="">How do you prefer to learn?</option>
         <option value="1-on-1">One-on-one mentoring</option>
@@ -71,6 +71,9 @@ const props = defineProps<{
   formData: SkillsData;
 }>();
 
+// Two-way bound validation error model
+const validationError = defineModel<string>('validationError', { default: '' });
+
 const skillInput = ref('');
 
 const addSkill = () => {
@@ -83,4 +86,33 @@ const addSkill = () => {
 const removeSkill = (index: number) => {
   props.formData.skills.splice(index, 1);
 };
+
+// Validation function
+const validate = (): boolean => {
+  validationError.value = '';
+
+  if (props.formData.skills.length === 0) {
+    validationError.value = 'Please add at least one skill you want to learn.';
+    return false;
+  }
+  if (!props.formData.learningStyle) {
+    validationError.value = 'Please select your preferred learning style.';
+    return false;
+  }
+
+  return true;
+};
+
+// Expose validate method to parent
+defineExpose({ validate });
+
+// Watch for changes to clear errors when user corrects input
+watch(
+  () => [props.formData.skills.length, props.formData.learningStyle],
+  () => {
+    if (validationError.value) {
+      validate();
+    }
+  }
+);
 </script>
