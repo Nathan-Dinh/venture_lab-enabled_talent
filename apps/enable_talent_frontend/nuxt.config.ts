@@ -8,6 +8,15 @@ export default defineNuxtConfig({
     host: '0.0.0.0',
   },
   modules: ['shadcn-nuxt', '@pinia/nuxt', '@nuxtjs/supabase'],
+  supabase: {
+    redirect: true,
+    redirectOptions: {
+      login: '/login',
+      callback: '/confirm',
+      exclude: ['/', '/signup', '/login', '/api/**'], // Exclude public routes from auth checks
+      cookieRedirect: false,
+    },
+  },
   nitro: {
     devProxy: {
       '/api': {

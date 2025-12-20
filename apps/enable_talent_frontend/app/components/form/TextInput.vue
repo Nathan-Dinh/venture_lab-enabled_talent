@@ -16,9 +16,11 @@
       ]"
       @blur="handleBlur"
     />
-    <p v-if="error" class="mt-1 text-sm text-red-600">
-      {{ error }}
-    </p>
+    <ClientOnly>
+      <p v-if="error" class="mt-1 text-sm text-red-600">
+        {{ error }}
+      </p>
+    </ClientOnly>
   </div>
 </template>
 

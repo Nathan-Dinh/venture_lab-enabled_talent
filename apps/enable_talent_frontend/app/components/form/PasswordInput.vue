@@ -34,20 +34,22 @@
     </div>
 
     <!-- Password Strength Indicator -->
-    <div v-if="showStrength && passwordInput" class="space-y-1">
-      <div class="flex gap-1">
-        <div
-          v-for="i in 3"
-          :key="i"
-          :class="cn('h-1 flex-1 rounded-full transition-colors', getStrengthColor(i) as string)"
-        />
+    <ClientOnly>
+      <div v-if="showStrength && passwordInput" class="space-y-1">
+        <div class="flex gap-1">
+          <div
+            v-for="i in 3"
+            :key="i"
+            :class="cn('h-1 flex-1 rounded-full transition-colors', getStrengthColor(i) as string)"
+          />
+        </div>
+        <p :class="cn('text-xs', getStrengthTextClass())">Password strength: {{ strengthLabel }}</p>
       </div>
-      <p :class="cn('text-xs', getStrengthTextClass())">Password strength: {{ strengthLabel }}</p>
-    </div>
 
-    <p v-if="showError && error" class="text-sm font-medium text-destructive">
-      {{ error }}
-    </p>
+      <p v-if="showError && error" class="text-sm font-medium text-destructive">
+        {{ error }}
+      </p>
+    </ClientOnly>
   </div>
 </template>
 

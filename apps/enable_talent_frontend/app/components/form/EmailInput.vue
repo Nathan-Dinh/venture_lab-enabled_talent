@@ -21,9 +21,11 @@
       />
     </div>
 
-    <p v-if="error" class="text-sm font-medium text-destructive">
-      {{ error }}
-    </p>
+    <ClientOnly>
+      <p v-if="error" class="text-sm font-medium text-destructive">
+        {{ error }}
+      </p>
+    </ClientOnly>
   </div>
 </template>
 
