@@ -2,7 +2,7 @@ import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
 import { User } from '../../domain/types/models.js';
 import { withErrorHandler } from '../../application/utils/errorHandler.js';
-import { ProfileService } from '../../application/services/ProfileService.js';
+import { getProfile, updateProfile, deleteAccount } from '../../application/services/profileService.js';
 
 /**
  * Get user profile with experience, education, and skills
@@ -15,8 +15,7 @@ async function getProfileHandlerImpl(
   fastify: FastifyInstance
 ) {
   const user = req.user! as User;
-  const profileService = new ProfileService(fastify);
-  const response = await profileService.getProfile(user.user_id);
+  const response = await getProfile(fastify, user.user_id);
 
   return reply.send({
     success: true,
@@ -37,8 +36,7 @@ async function updateProfileHandlerImpl(
   fastify: FastifyInstance
 ) {
   const user = req.user! as User;
-  const profileService = new ProfileService(fastify);
-  const response = await profileService.updateProfile(user.user_id, req.body);
+  const response = await updateProfile(fastify, user.user_id, req.body);
 
   return reply.send({
     success: true,
@@ -59,8 +57,7 @@ async function deleteAccountHandlerImpl(
   fastify: FastifyInstance
 ) {
   const user = req.user! as User;
-  const profileService = new ProfileService(fastify);
-  await profileService.deleteAccount(user.user_id);
+  await deleteAccount(fastify, user.user_id);
 
   return reply.send({
     success: true,

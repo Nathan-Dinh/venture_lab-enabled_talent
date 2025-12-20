@@ -18,11 +18,8 @@ async function buildApp(): Promise<FastifyInstance> {
   // Validate required environment variables
   const requiredEnvVars = [
     'SUPABASE_DATABASE_URL',
-    'SUPABASE_JWT_SECRET',
     'SUPABASE_PROJECT_URL',
     'SUPABASE_SERVICE_ROLE_KEY',
-    'COOKIE_SECRET',
-    'SESSION_SECRET',
   ];
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {

@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
 import { withErrorHandler } from '../../application/utils/errorHandler.js';
-import { MentorService } from '../../application/services/MentorService.js';
+import { getMentors, getMentorById } from '../../application/services/mentorService.js';
 
 /**
  * List all mentors with optional filtering
@@ -14,8 +14,7 @@ async function listMentorsHandlerImpl(
 ) {
   const { page, pageSize, location, minRating, skills } = req.query as any;
 
-  const mentorService = new MentorService(fastify);
-  const response = await mentorService.listMentors({
+  const response = await getMentors(fastify, {
     location,
     minRating: minRating ? parseFloat(minRating) : undefined,
     skills,
@@ -42,8 +41,7 @@ async function getMentorHandlerImpl(
 ) {
   const { id } = req.params as any;
 
-  const mentorService = new MentorService(fastify);
-  const mentor = await mentorService.getMentorById(id);
+  const mentor = await getMentorById(fastify, id);
 
   return reply.send({
     success: true,

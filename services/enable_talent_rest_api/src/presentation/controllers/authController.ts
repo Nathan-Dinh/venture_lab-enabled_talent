@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
 import { withErrorHandler } from '../../application/utils/errorHandler.js';
-import { AuthService } from '../../application/services/AuthService.js';
+import { signup, login, getCurrentUser } from '../../application/services/authService.js';
 
 /**
  * Handle user signup
@@ -11,8 +11,7 @@ async function signupHandlerImpl(
   reply: FastifyReply,
   fastify: FastifyInstance
 ) {
-  const authService = new AuthService(fastify);
-  const response = await authService.signup(req.body);
+  const response = await signup(fastify, req.body);
 
   return reply.status(201).send({
     success: true,
@@ -31,8 +30,7 @@ async function loginHandlerImpl(
   reply: FastifyReply,
   fastify: FastifyInstance
 ) {
-  const authService = new AuthService(fastify);
-  const response = await authService.login(req.body);
+  const response = await login(fastify, req.body);
 
   return reply.send({
     success: true,
@@ -53,8 +51,7 @@ async function getCurrentUserHandlerImpl(
   fastify: FastifyInstance
 ) {
   const user = req.user!;
-  const authService = new AuthService(fastify);
-  const response = await authService.getCurrentUser(user.user_id);
+  const response = await getCurrentUser(fastify, user.user_id);
 
   return reply.send({
     success: true,

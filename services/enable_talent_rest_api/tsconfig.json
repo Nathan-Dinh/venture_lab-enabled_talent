@@ -7,7 +7,14 @@
     "rootDir": "src",
     "sourceMap": true,
     "inlineSourceMap": false,
-    "inlineSources": false
+    "inlineSources": false,
+    "baseUrl": ".",
+    "paths": {
+      "@presentation/*": ["src/presentation/*"],
+      "@application/*": ["src/application/*"],
+      "@domain/*": ["src/domain/*"],
+      "@infrastructure/*": ["src/infrastructure/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]
