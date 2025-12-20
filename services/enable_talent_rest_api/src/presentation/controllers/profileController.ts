@@ -1,8 +1,6 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
-import { User } from '../../domain/types/models.js';
 import { withErrorHandler } from '../../application/utils/errorHandler.js';
-import { getProfile, updateProfile, deleteAccount } from '../../application/services/profileService.js';
 
 /**
  * Get user profile with experience, education, and skills
@@ -10,17 +8,12 @@ import { getProfile, updateProfile, deleteAccount } from '../../application/serv
  * Requires authentication
  */
 async function getProfileHandlerImpl(
-  req: FastifyRequest,
-  reply: FastifyReply,
-  fastify: FastifyInstance
+  _req: FastifyRequest,
+  _reply: FastifyReply,
+  _fastify: FastifyInstance
 ) {
-  const user = req.user! as User;
-  const response = await getProfile(fastify, user.user_id);
-
-  return reply.send({
-    success: true,
-    data: response,
-  });
+  // TODO: Implement get profile logic
+  throw new Error('Not implemented');
 }
 
 export const getProfileHandler = withErrorHandler(getProfileHandlerImpl);
@@ -31,17 +24,12 @@ export const getProfileHandler = withErrorHandler(getProfileHandlerImpl);
  * Requires authentication
  */
 async function updateProfileHandlerImpl(
-  req: FastifyRequest,
-  reply: FastifyReply,
-  fastify: FastifyInstance
+  _req: FastifyRequest,
+  _reply: FastifyReply,
+  _fastify: FastifyInstance
 ) {
-  const user = req.user! as User;
-  const response = await updateProfile(fastify, user.user_id, req.body);
-
-  return reply.send({
-    success: true,
-    data: response,
-  });
+  // TODO: Implement update profile logic
+  throw new Error('Not implemented');
 }
 
 export const updateProfileHandler = withErrorHandler(updateProfileHandlerImpl);
@@ -52,17 +40,12 @@ export const updateProfileHandler = withErrorHandler(updateProfileHandlerImpl);
  * Requires authentication
  */
 async function deleteAccountHandlerImpl(
-  req: FastifyRequest,
-  reply: FastifyReply,
-  fastify: FastifyInstance
+  _req: FastifyRequest,
+  _reply: FastifyReply,
+  _fastify: FastifyInstance
 ) {
-  const user = req.user! as User;
-  await deleteAccount(fastify, user.user_id);
-
-  return reply.send({
-    success: true,
-    message: 'Account deleted successfully',
-  });
+  // TODO: Implement delete account logic
+  throw new Error('Not implemented');
 }
 
 export const deleteAccountHandler = withErrorHandler(deleteAccountHandlerImpl);

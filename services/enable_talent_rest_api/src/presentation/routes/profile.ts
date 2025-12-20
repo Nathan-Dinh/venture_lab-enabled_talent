@@ -5,7 +5,7 @@ import {
   updateProfileHandler,
   deleteAccountHandler,
 } from '../controllers/profileController.js';
-import { authenticate } from '../../application/middleware/authenticate.js';
+import { authenticate } from '../middleware/authenticate.js';
 
 const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   // All profile routes require authentication

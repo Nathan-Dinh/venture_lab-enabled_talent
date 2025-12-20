@@ -3,16 +3,17 @@ import {
   getProfileHandler,
   updateProfileHandler,
 } from '../controllers/profileController.js';
+import { authenticate } from '../middleware/authenticate.js';
 
 const mentorProfileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   fastify.get(
     '/mentors/profile',
-    { preValidation: [fastify.authenticate] },
+    { preHandler: [authenticate] },
     async (req, reply) => getProfileHandler(req, reply, fastify)
   );
   fastify.patch(
     '/mentors/profile',
-    { preValidation: [fastify.authenticate] },
+    { preHandler: [authenticate] },
     async (req, reply) => updateProfileHandler(req, reply, fastify)
   );
 };

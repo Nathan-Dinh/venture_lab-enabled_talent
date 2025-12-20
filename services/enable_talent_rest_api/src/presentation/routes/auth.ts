@@ -4,7 +4,7 @@ import {
   loginHandler,
   getCurrentUserHandler,
 } from '../controllers/authController.js';
-import { authenticate } from '../../application/middleware/authenticate.js';
+import { authenticate } from '../middleware/authenticate.js';
 
 const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   // Public routes
