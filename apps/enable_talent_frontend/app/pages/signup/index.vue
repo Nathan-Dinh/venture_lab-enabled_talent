@@ -1,5 +1,19 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <JourneyUserJourneyOverlay
+      v-if="journeyType === 'user'"
+      :show="showOverlay"
+      :onComplete="handleJourneyComplete"
+      @close="handleOverlayClose"
+    />
+
+    <JourneyMentorJourneyOverlay
+      v-else-if="journeyType === 'mentor'"
+      :show="showOverlay"
+      :onComplete="handleJourneyComplete"
+      @close="handleOverlayClose"
+    />
+
     <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
       <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Create Your Account</h2>
 
@@ -77,6 +91,11 @@
 <script setup>
 import { ref } from 'vue';
 
+// Disable SSR for signup page to avoid hydration issues with dynamic form validation
+definePageMeta({
+  ssr: false,
+});
+
 const name = ref('');
 const email = ref('');
 const password = ref('');
@@ -90,6 +109,10 @@ const successMessage = ref('');
 const emailError = ref('');
 const passwordError = ref('');
 const confirmPasswordError = ref('');
+
+// Overlay state
+const showOverlay = ref(false);
+const journeyType = ref('user');
 
 // Watch for password confirmation match
 watch(confirmPassword, (newValue) => {
@@ -125,62 +148,73 @@ const handleSignup = async () => {
     return;
   }
 
+  // Set journey type and open overlay
+  journeyType.value = role.value === 'mentor' ? 'mentor' : 'user';
+  showOverlay.value = true;
+};
+
+// Handle overlay close (when user cancels/skips)
+const handleOverlayClose = () => {
+  showOverlay.value = false;
+  error.value =
+    'Registration cancelled. Please complete the signup process to create your account.';
+};
+
+// Callback function that will be called when journey is complete
+const handleJourneyComplete = async (journeyData) => {
+  error.value = '';
   isLoading.value = true;
 
   try {
-    const { data: res, error: fetchError } = await useFetch('/api/auth/signup', {
+    // Send signup request with both credentials and journey data
+    const res = await $fetch('/api/auth/signup', {
       method: 'POST',
       body: {
         name: name.value,
         email: email.value,
         password: password.value,
         role: role.value === 'mentor' ? 'Mentor' : 'User',
+        journeyData: journeyData,
       },
     });
 
     isLoading.value = false;
 
-    if (fetchError.value) {
-      const status = fetchError.value.statusCode;
-
-      const errorMessages = {
-        409: 'An account with this email already exists.',
-        400: 'Invalid signup information. Please check your details.',
-        429: 'Too many signup attempts. Please try again later.',
-        500: 'Server error. Please try again later.',
-      };
-
-      if (!navigator.onLine) {
-        error.value = 'No internet connection. Please check your network.';
-      } else {
-        error.value = errorMessages[status] || fetchError.value.data?.error || 'Signup failed. Please try again.';
-      }
-      return;
-    }
-
     // Handle successful signup
-    if (res.value?.success && res.value?.data?.token) {
+    if (res?.success && res?.data?.token) {
+      // Save authentication token
       const tokenCookie = useCookie('token', {
         maxAge: 60 * 60 * 24, // 1 day
       });
+      tokenCookie.value = res.data.token;
 
-      tokenCookie.value = res.value.data.token;
-      successMessage.value = 'Account created successfully! Redirecting...';
-
-      setTimeout(() => {
-        navigateTo('/dashboard');
-      }, 1000);
+      // Close overlay and redirect to dashboard
+      showOverlay.value = false;
+      await navigateTo('/dashboard');
     } else {
-      error.value = res.value?.error || 'Signup failed. Please try again.';
+      error.value = res?.error || 'Signup failed. Please try again.';
     }
   } catch (err) {
     isLoading.value = false;
     console.error('Signup error:', err);
 
+    // Handle fetch errors
+    const status = err?.status || err?.statusCode;
+
+    const errorMessages = {
+      409: 'An account with this email already exists.',
+      400: 'Invalid signup information. Please check your details.',
+      429: 'Too many signup attempts. Please try again later.',
+      500: 'Server error. Please try again later.',
+    };
+
     if (!navigator.onLine) {
       error.value = 'No internet connection. Please check your network and try again.';
     } else {
-      error.value = 'An unexpected error occurred. Please try again.';
+      error.value =
+        errorMessages[status] ||
+        err?.data?.error ||
+        'An unexpected error occurred. Please try again.';
     }
   }
 };
