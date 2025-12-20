@@ -4,36 +4,46 @@
  */
 
 // ============================================================================
-// ENUMS
+// ENUMS (as const objects for Node.js ESM compatibility)
 // ============================================================================
 
-export enum UserRole {
-  USER = 'User',
-  MENTOR = 'Mentor',
-}
+export const UserRole = {
+  USER: 'User',
+  MENTOR: 'Mentor',
+} as const;
 
-export enum SessionStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
-}
+export type UserRole = typeof UserRole[keyof typeof UserRole];
 
-export enum AvailabilityStatus {
-  AVAILABLE = 'available',
-  UNAVAILABLE = 'unavailable',
-}
+export const SessionStatus = {
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+} as const;
 
-export enum PaymentMethod {
-  CARD = 'card',
-  BANK = 'bank',
-  PAYPAL = 'paypal',
-}
+export type SessionStatus = typeof SessionStatus[keyof typeof SessionStatus];
 
-export enum ConversationRole {
-  MEMBER = 'member',
-  ADMIN = 'admin',
-}
+export const AvailabilityStatus = {
+  AVAILABLE: 'available',
+  UNAVAILABLE: 'unavailable',
+} as const;
+
+export type AvailabilityStatus = typeof AvailabilityStatus[keyof typeof AvailabilityStatus];
+
+export const PaymentMethod = {
+  CARD: 'card',
+  BANK: 'bank',
+  PAYPAL: 'paypal',
+} as const;
+
+export type PaymentMethod = typeof PaymentMethod[keyof typeof PaymentMethod];
+
+export const ConversationRole = {
+  MEMBER: 'member',
+  ADMIN: 'admin',
+} as const;
+
+export type ConversationRole = typeof ConversationRole[keyof typeof ConversationRole];
 
 // ============================================================================
 // AUTH & USER
@@ -52,9 +62,30 @@ export interface AuthResponse {
 }
 
 export interface JwtPayload {
+  aud: string;
+  exp: number;
+  iat: number;
+  iss: string;
+  sub: string;
   user_id: string;
-  email: string;
-  role: UserRole;
+  email?: string;
+  phone?: string;
+  app_metadata: {
+    provider?: string;
+    providers?: string[];
+    [key: string]: any;
+  };
+  user_metadata: {
+    [key: string]: any;
+  };
+  role?: string;
+  aal?: string;
+  amr?: Array<{ method: string; timestamp: number }>;
+  session_id?: string;
+  name?: string;
+  usertype_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface User {

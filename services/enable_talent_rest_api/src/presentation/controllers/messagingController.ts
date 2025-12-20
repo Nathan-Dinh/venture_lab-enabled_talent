@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
-import { Message, Conversation, ConversationWithMessages, User } from '../types/models.js';
-import { withErrorHandler } from '../utils/errorHandler.js';
+import { Message, Conversation, ConversationWithMessages, User } from '../../domain/types/models.js';
+import { withErrorHandler } from '../../application/utils/errorHandler.js';
 
 /**
  * List user conversations

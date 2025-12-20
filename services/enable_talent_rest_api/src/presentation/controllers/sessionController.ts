@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
-import { Session, SessionStatus, User } from '../types/models.js';
+import { Session, SessionStatus, User } from '../../domain/types/models.js';
 
 /**
  * List user sessions

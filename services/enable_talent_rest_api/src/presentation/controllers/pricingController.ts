@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
-import { UserPricing, PricingTier, UpdatePricingRequest, User } from '../types/models.js';
+import { UserPricing, PricingTier, UpdatePricingRequest, User } from '../../domain/types/models.js';
 
 /**
  * Get mentor pricing information

@@ -1,10 +1,6 @@
 import 'dotenv/config';
 import fastify, { FastifyInstance } from 'fastify';
 import fastifyAutoload from '@fastify/autoload';
-import fastifyCors from '@fastify/cors';
-import fastifySession from '@fastify/session';
-import fastifyCookie from '@fastify/cookie';
-import fastifyPostgres from '@fastify/postgres';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -20,56 +16,29 @@ async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({ logger: true });
 
   // Validate required environment variables
-  const requiredEnvVars = ['DATABASE_URL', 'COOKIE_SECRET', 'SESSION_SECRET', 'JWT_SECRET'];
+  const requiredEnvVars = [
+    'SUPABASE_DATABASE_URL',
+    'SUPABASE_JWT_SECRET',
+    'SUPABASE_PROJECT_URL',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'COOKIE_SECRET',
+    'SESSION_SECRET',
+  ];
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
       throw new Error(`Missing required environment variable: ${envVar}`);
     }
   }
 
-  const corsOrigin = (process.env.CORS_ORIGIN || 'http://localhost:7005').split(',');
-  const isProduction = process.env.NODE_ENV === 'production';
-  const sessionSecret = process.env.SESSION_SECRET!;
-  const cookieSecret = process.env.COOKIE_SECRET!;
-
-  // Configure CORS
-  app.register(fastifyCors, {
-    origin: corsOrigin,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true, // Allow sending cookies
-  });
-
-  // Configure cookie parser
-  app.register(fastifyCookie, {
-    secret: cookieSecret,
-    parseOptions: {}, // cookie.parse options
-  });
-
-  // Configure session management
-  app.register(fastifySession, {
-    secret: sessionSecret,
-    cookie: {
-      secure: isProduction,
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 86400000,
-    },
-  });
-
-  // Configure PostgreSQL connection
-  app.register(fastifyPostgres, {
-    connectionString: process.env.DATABASE_URL,
-  });
-
-  // Load all plugins from the plugins directory
+  // Load all plugins from the infrastructure/plugins directory
   await app.register(fastifyAutoload, {
-    dir: join(__dirname, 'plugins'),
+    dir: join(__dirname, 'infrastructure', 'plugins'),
     options: {},
   });
 
-  // Load all routes from the routes directory
+  // Load all routes from the presentation/routes directory
   await app.register(fastifyAutoload, {
-    dir: join(__dirname, 'routes'),
+    dir: join(__dirname, 'presentation', 'routes'),
     options: { prefix: '/api' },
   });
 

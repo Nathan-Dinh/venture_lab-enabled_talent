@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
-import { Follow, UserRole, User } from '../types/models.js';
+import { Follow, UserRole, User } from '../../domain/types/models.js';
 
 /**
  * Get followed mentors

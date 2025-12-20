@@ -127,7 +127,7 @@ export const isAuthError = (error: any): boolean => {
  * @param data - Additional error data
  * @returns Standardized error object
  */
-export const createError = (message: string, status?: number, data?: any): ApiError => {
+export const createApiError = (message: string, status?: number, data?: any): ApiError => {
   return {
     message,
     status,
