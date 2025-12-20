@@ -7,7 +7,15 @@ export default defineNuxtConfig({
     port: 7005,
     host: '0.0.0.0',
   },
-  modules: ['shadcn-nuxt', '@pinia/nuxt'],
+  modules: ['shadcn-nuxt', '@pinia/nuxt', '@nuxtjs/supabase'],
+  nitro: {
+    devProxy: {
+      '/api': {
+        target: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8005',
+        changeOrigin: true,
+      },
+    },
+  },
   css: ['~/assets/css/tailwind.css'],
   imports: {
     dirs: ['composables/**'],
@@ -18,12 +26,5 @@ export default defineNuxtConfig({
   shadcn: {
     prefix: '',
     componentDir: './app/components/ui',
-  },
-  runtimeConfig: {
-    apiSecret: process.env.API_SECRET || '',
-    public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8005',
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8005/api',
-    },
   },
 });

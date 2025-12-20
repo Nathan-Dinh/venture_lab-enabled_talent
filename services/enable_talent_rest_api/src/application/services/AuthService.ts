@@ -1,24 +1,12 @@
 import { FastifyInstance } from 'fastify';
-import { createUser, findUserById, getUserProfile } from '../../infrastructure/repositories/userRepository.js';
 import {
-  SignupSchema,
-  LoginSchema,
-  AuthResponse,
-  UserRole,
-} from '../../domain/types/models.js';
+  createUser,
+  findUserById,
+  getUserProfile,
+} from '@infrastructure/repositories/userRepository.js';
+import { SignupSchema, LoginSchema, AuthResponse, UserRole } from '@domain/types/models.js';
 
-/**
- * Authentication Service (Functional)
- * Handles all authentication-related business logic
- */
-
-/**
- * Sign up a new user
- */
-export async function signup(
-  fastify: FastifyInstance,
-  data: unknown
-): Promise<AuthResponse> {
+export async function signup(fastify: FastifyInstance, data: unknown): Promise<AuthResponse> {
   // Validate request data
   const validationResult = SignupSchema.safeParse(data);
   if (!validationResult.success) {
@@ -81,10 +69,7 @@ export async function signup(
 /**
  * Login user
  */
-export async function login(
-  fastify: FastifyInstance,
-  data: unknown
-): Promise<AuthResponse> {
+export async function login(fastify: FastifyInstance, data: unknown): Promise<AuthResponse> {
   // Validate request data
   const validationResult = LoginSchema.safeParse(data);
   if (!validationResult.success) {
@@ -98,11 +83,10 @@ export async function login(
   const { email, password } = validationResult.data;
 
   // Authenticate with Supabase Auth
-  const { data: authData, error: authError } =
-    await fastify.supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const { data: authData, error: authError } = await fastify.supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
   if (authError || !authData.user || !authData.session) {
     throw {
@@ -136,10 +120,7 @@ export async function login(
 /**
  * Get current authenticated user
  */
-export async function getCurrentUser(
-  fastify: FastifyInstance,
-  userId: string
-): Promise<any> {
+export async function getCurrentUser(fastify: FastifyInstance, userId: string): Promise<any> {
   const user = await getUserProfile(fastify, userId);
 
   if (!user) {

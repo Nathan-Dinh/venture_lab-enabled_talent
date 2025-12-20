@@ -38,11 +38,22 @@
           required
         />
 
-        <FormTextInput
+        <FormPasswordInput
           id="password"
-          v-model="password"
-          type="password"
+          v-model:value="password"
+          v-model:error="passwordError"
           label="Password"
+          :show-strength="true"
+          :show-error="true"
+          required
+        />
+
+        <FormPasswordInput
+          id="confirmPassword"
+          v-model:value="confirmPassword"
+          v-model:error="confirmPasswordError"
+          label="Confirm Password"
+          :show-error="true"
           required
         />
 
@@ -69,6 +80,7 @@ import { ref } from 'vue';
 const name = ref('');
 const email = ref('');
 const password = ref('');
+const confirmPassword = ref('');
 const role = ref('user');
 
 const isLoading = ref(false);
@@ -76,13 +88,39 @@ const error = ref('');
 const successMessage = ref('');
 
 const emailError = ref('');
+const passwordError = ref('');
+const confirmPasswordError = ref('');
+
+// Watch for password confirmation match
+watch(confirmPassword, (newValue) => {
+  if (newValue && password.value && newValue !== password.value) {
+    confirmPasswordError.value = 'Passwords do not match';
+  } else {
+    confirmPasswordError.value = '';
+  }
+});
+
+watch(password, (newValue) => {
+  if (confirmPassword.value && newValue !== confirmPassword.value) {
+    confirmPasswordError.value = 'Passwords do not match';
+  } else if (confirmPassword.value) {
+    confirmPasswordError.value = '';
+  }
+});
 
 const handleSignup = async () => {
   error.value = '';
   successMessage.value = '';
 
   // Validate fields before submission
-  if (emailError.value) {
+  if (emailError.value || passwordError.value || confirmPasswordError.value) {
+    error.value = 'Please fix the errors before submitting.';
+    return;
+  }
+
+  // Check if passwords match
+  if (password.value !== confirmPassword.value) {
+    confirmPasswordError.value = 'Passwords do not match';
     error.value = 'Please fix the errors before submitting.';
     return;
   }
