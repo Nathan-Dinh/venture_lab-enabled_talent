@@ -3,7 +3,8 @@
     <div class="mb-4">
       <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
         <div
-          class="h-full bg-orange-600 transition-all duration-300 ease-out"
+          class="h-full transition-all duration-300 ease-out"
+          :class="progressBarClass"
           :style="{ width: `${progress}%` }"
         />
       </div>
@@ -17,7 +18,7 @@
             index < currentStep
               ? 'bg-green-600 text-white'
               : index === currentStep
-                ? 'bg-orange-600 text-white ring-2 ring-orange-300'
+                ? currentStepClass
                 : 'bg-gray-300 text-gray-600',
           ]"
         >
@@ -48,10 +49,12 @@ interface Props {
   currentStep: number;
   totalSteps: number;
   steps?: string[];
+  color?: 'blue' | 'orange';
 }
 
 const props = withDefaults(defineProps<Props>(), {
   steps: () => [],
+  color: 'orange',
 });
 
 const progress = computed(() => {
@@ -60,5 +63,15 @@ const progress = computed(() => {
 
 const showStepIndicators = computed(() => {
   return props.steps.length > 0;
+});
+
+const progressBarClass = computed(() => {
+  return props.color === 'blue' ? 'bg-blue-600' : 'bg-orange-600';
+});
+
+const currentStepClass = computed(() => {
+  return props.color === 'blue'
+    ? 'bg-blue-600 text-white ring-2 ring-blue-300'
+    : 'bg-orange-600 text-white ring-2 ring-orange-300';
 });
 </script>
