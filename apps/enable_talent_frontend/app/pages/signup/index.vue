@@ -11,14 +11,14 @@
     <JourneyUserJourneyOverlay
       v-if="journeyType === 'user'"
       :show="showOverlay"
-      :onComplete="handleJourneyComplete"
+      :onComplete="handleUserJourneyComplete"
       @close="handleOverlayClose"
     />
 
     <JourneyMentorJourneyOverlay
       v-else-if="journeyType === 'mentor'"
       :show="showOverlay"
-      :onComplete="handleJourneyComplete"
+      :onComplete="handleMentorJourneyComplete"
       @close="handleOverlayClose"
     />
 
@@ -82,9 +82,12 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class="w-full bg-orange-600 text-white py-2.5 rounded-lg font-semibold hover:bg-orange-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+          :class="role === 'mentor'
+            ? 'bg-gradient-to-r from-purple-600 to-amber-600 hover:from-purple-700 hover:to-amber-700'
+            : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'"
+          class="w-full text-white py-2.5 rounded-lg font-semibold transition disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {{ isLoading ? 'Creating Account...' : 'Sign Up' }}
+          {{ isLoading ? 'Creating Account...' : (role === 'mentor' ? 'Sign Up as Mentor' : 'Sign Up as User') }}
         </button>
 
         <p class="text-center text-gray-600 text-sm mt-4">
@@ -164,7 +167,7 @@ const handleOverlayClose = () => {
   showAlert.value = true;
 };
 
-const handleJourneyComplete = async (journeyData) => {
+const handleUserJourneyComplete = async (journeyData) => {
   error.value = '';
   isLoading.value = true;
 
@@ -175,7 +178,7 @@ const handleJourneyComplete = async (journeyData) => {
         name: name.value,
         email: email.value,
         password: password.value,
-        role: role.value === 'mentor' ? 'Mentor' : 'User',
+        role: 'User',
         journeyData,
       },
     });
@@ -187,7 +190,53 @@ const handleJourneyComplete = async (journeyData) => {
       error.value = res?.error || 'Signup failed. Please try again.';
     }
   } catch (err) {
-    console.error('Signup error:', err);
+    console.error('User signup error:', err);
+
+    const status = err?.status || err?.statusCode;
+    const errorMessages = {
+      409: 'An account with this email already exists.',
+      400: 'Invalid signup information. Please check your details.',
+      429: 'Too many signup attempts. Please try again later.',
+      500: 'Server error. Please try again later.',
+    };
+
+    if (!navigator.onLine) {
+      error.value = 'No internet connection. Please check your network and try again.';
+    } else {
+      error.value =
+        errorMessages[status] ||
+        err?.data?.error ||
+        'An unexpected error occurred. Please try again.';
+    }
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const handleMentorJourneyComplete = async (journeyData) => {
+  error.value = '';
+  isLoading.value = true;
+
+  try {
+    const res = await $fetch('/api/auth/signup', {
+      method: 'POST',
+      body: {
+        name: name.value,
+        email: email.value,
+        password: password.value,
+        role: 'Mentor',
+        journeyData,
+      },
+    });
+
+    if (res?.success && res?.data?.token) {
+      showOverlay.value = false;
+      await navigateTo('/dashboard');
+    } else {
+      error.value = res?.error || 'Signup failed. Please try again.';
+    }
+  } catch (err) {
+    console.error('Mentor signup error:', err);
 
     const status = err?.status || err?.statusCode;
     const errorMessages = {
