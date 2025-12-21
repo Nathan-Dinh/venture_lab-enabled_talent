@@ -1,5 +1,13 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <CustomAlert
+      :show="showAlert"
+      :message="alertMessage"
+      :title="alertTitle"
+      :type="alertType"
+      @close="showAlert = false"
+    />
+
     <JourneyUserJourneyOverlay
       v-if="journeyType === 'user'"
       :show="showOverlay"
@@ -89,84 +97,78 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
 // Disable SSR for signup page to avoid hydration issues with dynamic form validation
 definePageMeta({
   ssr: false,
 });
 
+// Form fields
 const name = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const role = ref('user');
 
+// Form state
 const isLoading = ref(false);
 const error = ref('');
 const successMessage = ref('');
 
+// Field errors
 const emailError = ref('');
 const passwordError = ref('');
 const confirmPasswordError = ref('');
 
-// Overlay state
+// Journey overlay state
 const showOverlay = ref(false);
 const journeyType = ref('user');
 
-// Watch for password confirmation match
-watch(confirmPassword, (newValue) => {
-  if (newValue && password.value && newValue !== password.value) {
+// Alert state
+const showAlert = ref(false);
+const alertMessage = ref('');
+const alertTitle = ref('');
+const alertType = ref('info');
+
+// Validate password match
+const validatePasswordMatch = () => {
+  if (confirmPassword.value && password.value !== confirmPassword.value) {
     confirmPasswordError.value = 'Passwords do not match';
   } else {
     confirmPasswordError.value = '';
   }
-});
+};
 
-watch(password, (newValue) => {
-  if (confirmPassword.value && newValue !== confirmPassword.value) {
-    confirmPasswordError.value = 'Passwords do not match';
-  } else if (confirmPassword.value) {
-    confirmPasswordError.value = '';
-  }
-});
+watch(confirmPassword, validatePasswordMatch);
+watch(password, validatePasswordMatch);
 
 const handleSignup = async () => {
   error.value = '';
   successMessage.value = '';
 
-  // Validate fields before submission
+  // Validate form
   if (emailError.value || passwordError.value || confirmPasswordError.value) {
     error.value = 'Please fix the errors before submitting.';
     return;
   }
 
-  // Check if passwords match
-  if (password.value !== confirmPassword.value) {
-    confirmPasswordError.value = 'Passwords do not match';
-    error.value = 'Please fix the errors before submitting.';
-    return;
-  }
-
-  // Set journey type and open overlay
+  // Show journey overlay
   journeyType.value = role.value === 'mentor' ? 'mentor' : 'user';
   showOverlay.value = true;
 };
 
-// Handle overlay close (when user cancels/skips)
 const handleOverlayClose = () => {
   showOverlay.value = false;
-  error.value =
-    'Registration cancelled. Please complete the signup process to create your account.';
+  alertTitle.value = 'Registration Cancelled';
+  alertMessage.value = 'Please complete the signup process to create your account.';
+  alertType.value = 'warning';
+  showAlert.value = true;
 };
 
-// Callback function that will be called when journey is complete
 const handleJourneyComplete = async (journeyData) => {
   error.value = '';
   isLoading.value = true;
 
   try {
-    // Send signup request with both credentials and journey data
     const res = await $fetch('/api/auth/signup', {
       method: 'POST',
       body: {
@@ -174,33 +176,20 @@ const handleJourneyComplete = async (journeyData) => {
         email: email.value,
         password: password.value,
         role: role.value === 'mentor' ? 'Mentor' : 'User',
-        journeyData: journeyData,
+        journeyData,
       },
     });
 
-    isLoading.value = false;
-
-    // Handle successful signup
     if (res?.success && res?.data?.token) {
-      // Save authentication token
-      const tokenCookie = useCookie('token', {
-        maxAge: 60 * 60 * 24, // 1 day
-      });
-      tokenCookie.value = res.data.token;
-
-      // Close overlay and redirect to dashboard
       showOverlay.value = false;
       await navigateTo('/dashboard');
     } else {
       error.value = res?.error || 'Signup failed. Please try again.';
     }
   } catch (err) {
-    isLoading.value = false;
     console.error('Signup error:', err);
 
-    // Handle fetch errors
     const status = err?.status || err?.statusCode;
-
     const errorMessages = {
       409: 'An account with this email already exists.',
       400: 'Invalid signup information. Please check your details.',
@@ -216,6 +205,8 @@ const handleJourneyComplete = async (journeyData) => {
         err?.data?.error ||
         'An unexpected error occurred. Please try again.';
     }
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
