@@ -9,7 +9,7 @@
         <Transition name="modal">
           <div
             v-if="showOverlay"
-            class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            class="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
             <!-- Header -->
             <div class="bg-linear-to-r from-orange-500 to-orange-600 px-6 py-4 relative">
@@ -33,12 +33,12 @@
               <p class="text-orange-100 text-sm mt-1">Let's get you set up as a mentor</p>
             </div>
 
-            <!-- Progress Bar -->
-            <div class="px-6 pt-4 pb-2">
+            <!-- Progress Bar (hidden on welcome page) -->
+            <div v-if="currentStep > 0" class="px-6 pt-4 pb-2">
               <ProgressBar
                 :currentStep="currentStep"
-                :totalSteps="totalSteps"
-                :steps="stepLabels"
+                :totalSteps="totalSteps - 1"
+                :steps="stepLabelsWithoutWelcome"
               />
             </div>
 
@@ -53,6 +53,10 @@
               </div>
 
               <!-- Mentor Journey Steps -->
+              <div v-show="currentStep === 0" class="space-y-6">
+                <MentorWelcome ref="step0Ref" />
+              </div>
+
               <div v-show="currentStep === 1" class="space-y-6">
                 <MentorProfessionalInfo
                   ref="step1Ref"
@@ -100,7 +104,7 @@
             >
               <div class="flex gap-3">
                 <button
-                  v-if="currentStep > 1"
+                  v-if="currentStep > 0"
                   @click="previousStep"
                   class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition font-medium"
                 >
@@ -108,12 +112,12 @@
                 </button>
 
                 <button
-                  v-if="currentStep < totalSteps"
+                  v-if="currentStep < totalSteps - 1"
                   @click="nextStep"
                   :disabled="isLoading"
                   class="ml-auto px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Continue
+                  {{ currentStep === 0 ? 'Get Started' : 'Continue' }}
                 </button>
 
                 <button
@@ -150,6 +154,7 @@ import type { MentorJourneyData } from '~/types/journey';
 
 // Import journey components
 import ProgressBar from './setup/ProgressBar.vue';
+import MentorWelcome from './setup/MentorWelcome.vue';
 import MentorProfessionalInfo from './setup/MentorProfessionalInfo.vue';
 import MentorSkills from './setup/MentorSkills.vue';
 import MentorPricing from './setup/MentorPricing.vue';
@@ -168,14 +173,15 @@ const emit = defineEmits<{
 }>();
 
 // Reactive state
-const currentStep = ref(1);
+const currentStep = ref(0);
 const validationError = ref('');
 const isLoading = ref(false);
 
 // Computed properties
 const showOverlay = computed(() => props.show);
-const totalSteps = 5;
-const stepLabels = ['Professional Info', 'Skills', 'Pricing', 'Availability', 'Review'];
+const totalSteps = 6;
+const stepLabels = ['Welcome', 'Professional Info', 'Skills', 'Pricing', 'Availability', 'Review'];
+const stepLabelsWithoutWelcome = computed(() => stepLabels.slice(1));
 
 // Form data
 const formData = reactive<MentorJourneyData>({
@@ -202,6 +208,7 @@ const formData = reactive<MentorJourneyData>({
 });
 
 // Template refs for validation
+const step0Ref = ref();
 const step1Ref = ref();
 const step2Ref = ref();
 const step3Ref = ref();
@@ -210,8 +217,8 @@ const step5Ref = ref();
 
 // Validation
 const validateStep = (step: number): boolean => {
-  const refs = [step1Ref, step2Ref, step3Ref, step4Ref, step5Ref];
-  const componentRef = refs[step - 1];
+  const refs = [step0Ref, step1Ref, step2Ref, step3Ref, step4Ref, step5Ref];
+  const componentRef = refs[step];
 
   if (!componentRef?.value) return true;
 
@@ -234,7 +241,7 @@ const nextStep = () => {
 };
 
 const previousStep = () => {
-  if (currentStep.value > 1) {
+  if (currentStep.value > 0) {
     currentStep.value--;
     validationError.value = '';
   }
@@ -272,7 +279,7 @@ const completeJourney = async () => {
 
 // Prevent accidental navigation away
 const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-  if (currentStep.value > 1) {
+  if (currentStep.value > 0) {
     e.preventDefault();
     e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
   }
