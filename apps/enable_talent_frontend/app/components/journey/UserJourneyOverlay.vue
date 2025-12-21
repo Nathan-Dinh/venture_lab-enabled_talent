@@ -9,13 +9,13 @@
         <Transition name="modal">
           <div
             v-if="showOverlay"
-            class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            class="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
             <!-- Header -->
-            <div class="bg-linear-to-r from-orange-500 to-orange-600 px-6 py-4 relative">
+            <div class="bg-linear-to-r from-blue-500 to-blue-600 px-6 py-4 relative">
               <button
                 @click="handleClose"
-                class="absolute top-4 right-4 text-white hover:text-orange-100 transition-colors p-1 rounded-full hover:bg-white/10"
+                class="absolute top-4 right-4 text-white hover:text-blue-100 transition-colors p-1 rounded-full hover:bg-white/10"
                 aria-label="Close"
               >
                 <svg
@@ -30,7 +30,7 @@
                 </svg>
               </button>
               <h2 class="text-2xl font-bold text-white pr-10">Complete Your Profile</h2>
-              <p class="text-orange-100 text-sm mt-1">
+              <p class="text-blue-100 text-sm mt-1">
                 Tell us about yourself so we can find the perfect mentors for you
               </p>
             </div>
@@ -41,6 +41,7 @@
                 :currentStep="currentStep"
                 :totalSteps="totalSteps"
                 :steps="stepLabels"
+                color="blue"
               />
             </div>
 
@@ -113,7 +114,7 @@
                   v-if="currentStep < totalSteps"
                   @click="nextStep"
                   :disabled="isLoading"
-                  class="ml-auto px-8 py-3 bg-linear-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="ml-auto px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continue
                 </button>
@@ -128,8 +129,16 @@
                 </button>
               </div>
 
-              <!-- Cancel link -->
-              <div class="mt-3 text-center">
+              <!-- Skip for now / Cancel links -->
+              <div class="mt-3 text-center flex items-center justify-center gap-4">
+                <button
+                  @click="skipJourney"
+                  :disabled="isLoading"
+                  class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 underline disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Skip for now
+                </button>
+                <span class="text-gray-400">•</span>
                 <button
                   @click="handleClose"
                   :disabled="isLoading"
