@@ -18,8 +18,6 @@
       </div>
 
       <form @submit.prevent="handleLogin" class="space-y-5">
-        <FormRoleSelector v-model="role" label="Login as" />
-
         <FormEmailInput
           id="email"
           v-model:value="email"
@@ -67,7 +65,6 @@ import { ref } from 'vue';
 
 const email = ref('');
 const password = ref('');
-const role = ref('user');
 const rememberMe = ref(false);
 
 const isLoading = ref(false);
@@ -94,7 +91,6 @@ const handleLogin = async () => {
       body: {
         email: email.value,
         password: password.value,
-        role: role.value === 'mentor' ? 'Mentor' : 'User',
         rememberMe: rememberMe.value,
       },
     });
