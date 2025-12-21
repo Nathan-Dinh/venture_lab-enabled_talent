@@ -34,7 +34,11 @@
       </div>
 
       <div v-show="displayStep === 2" class="space-y-6">
-        <UserSkills ref="step3Ref" :form-data="formData" v-model:validationError="validationError" />
+        <UserSkills
+          ref="step3Ref"
+          :form-data="formData"
+          v-model:validationError="validationError"
+        />
       </div>
 
       <div v-show="displayStep === 3" class="space-y-6">
@@ -46,7 +50,11 @@
       </div>
 
       <div v-show="displayStep === 4" class="space-y-6">
-        <UserReview ref="step5Ref" :form-data="formData" v-model:validationError="validationError" />
+        <UserReview
+          ref="step5Ref"
+          :form-data="formData"
+          v-model:validationError="validationError"
+        />
       </div>
     </template>
 
@@ -71,7 +79,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import type { UserJourneyData } from '~/types/journey';
 
 import BaseJourneyOverlay from './BaseJourneyOverlay.vue';
@@ -84,7 +91,7 @@ import UserReview from './setup/UserReview.vue';
 const show = defineModel<boolean>({ required: true });
 
 const props = defineProps<{
-  onComplete: (journeyData: UserJourneyData) => Promise<void>;
+  onComplete: (journeyData?: UserJourneyData) => Promise<void>;
 }>();
 
 const emit = defineEmits<{
@@ -121,11 +128,7 @@ const stepRefs = [step1Ref, step2Ref, step3Ref, step4Ref, step5Ref];
 
 const validateStep = (step: number): boolean => {
   const componentRef = stepRefs[step - 1];
-
-  if (!componentRef?.value || typeof componentRef.value.validate !== 'function') {
-    return true;
-  }
-
+  if (!componentRef?.value || typeof componentRef.value.validate !== 'function') return true;
   return componentRef.value.validate();
 };
 
@@ -152,41 +155,15 @@ const handleClose = () => {
 
 const completeJourney = async () => {
   if (!validateStep(currentStep.value)) return;
-
-  isLoading.value = true;
   validationError.value = '';
-
-  try {
-    await props.onComplete(formData);
-    show.value = false;
-    emit('close');
-  } catch (err) {
-    validationError.value = !navigator.onLine
-      ? 'No internet connection. Please check your network and try again.'
-      : 'An unexpected error occurred. Please try again.';
-    isLoading.value = false;
-  }
+  show.value = false;
+  await props.onComplete(formData);
+  emit('close');
 };
 
 const skipJourney = async () => {
-  if (isLoading.value) return;
   show.value = false;
+  await props.onComplete();
   emit('close');
-  await navigateTo('/dashboard');
 };
-
-const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-  if (currentStep.value > 1) {
-    e.preventDefault();
-    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('beforeunload', handleBeforeUnload);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload);
-});
 </script>

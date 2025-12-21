@@ -184,7 +184,7 @@ const handleError = (err, roleType) => {
   }
 };
 
-const handleUserJourneyComplete = async (journeyData) => {
+const handleUserJourneyComplete = async (journeyData = null) => {
   error.value = '';
   isLoading.value = true;
 

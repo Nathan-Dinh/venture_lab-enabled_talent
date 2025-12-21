@@ -13,7 +13,7 @@
     >
       <div class="flex items-start space-x-3">
         <div
-          class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+          class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
           :class="iconBgClass"
         >
           <span class="text-xl">{{ icon }}</span>
@@ -24,12 +24,14 @@
           </h3>
           <p class="text-sm text-gray-600">{{ message }}</p>
         </div>
-        <button
-          @click="handleClose"
-          class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition"
-        >
+        <button @click="handleClose" class="shrink-0 text-gray-400 hover:text-gray-600 transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>

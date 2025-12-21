@@ -77,7 +77,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import type { MentorJourneyData } from '~/types/journey';
 
 import BaseJourneyOverlay from './BaseJourneyOverlay.vue';
@@ -141,9 +140,7 @@ const stepRefs = [step0Ref, step1Ref, step2Ref, step3Ref, step4Ref, step5Ref];
 const validateStep = (step: number): boolean => {
   const componentRef = stepRefs[step];
 
-  if (!componentRef?.value || typeof componentRef.value.validate !== 'function') {
-    return true;
-  }
+  if (!componentRef?.value || typeof componentRef.value.validate !== 'function') return true;
 
   return componentRef.value.validate();
 };
@@ -171,34 +168,9 @@ const handleClose = () => {
 
 const completeJourney = async () => {
   if (!validateStep(currentStep.value)) return;
-
-  isLoading.value = true;
   validationError.value = '';
-
-  try {
-    await props.onComplete(formData);
-    show.value = false;
-    emit('close');
-  } catch (err) {
-    validationError.value = !navigator.onLine
-      ? 'No internet connection. Please check your network and try again.'
-      : 'An unexpected error occurred. Please try again.';
-    isLoading.value = false;
-  }
+  show.value = false;
+  await props.onComplete(formData);
+  emit('close');
 };
-
-const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-  if (currentStep.value > 0) {
-    e.preventDefault();
-    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('beforeunload', handleBeforeUnload);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload);
-});
 </script>

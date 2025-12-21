@@ -1,6 +1,11 @@
 <template>
   <Teleport to="body">
-    <Transition name="overlay">
+    <Transition
+      enter-active-class="transition-opacity duration-300 ease-out"
+      leave-active-class="transition-opacity duration-300 ease-in"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
       <div
         v-if="show"
         class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -9,7 +14,12 @@
           emit('close');
         "
       >
-        <Transition name="modal">
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          leave-active-class="transition-all duration-200 ease-in"
+          enter-from-class="opacity-0 -translate-y-5 scale-95"
+          leave-to-class="opacity-0 translate-y-2 scale-98"
+        >
           <div
             v-if="show"
             class="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
@@ -91,7 +101,7 @@
                   v-else-if="showCompleteButton"
                   @click="emit('complete')"
                   :disabled="isLoading"
-                  class="ml-auto px-8 py-3 bg-linear-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="ml-auto px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {{ isLoading ? 'Saving...' : completeButtonText }}
                 </button>
@@ -154,8 +164,8 @@ const emit = defineEmits<{
 
 const headerClasses = computed(() =>
   props.color === 'blue'
-    ? 'bg-linear-to-r from-blue-500 to-blue-600'
-    : 'bg-linear-to-r from-orange-500 to-orange-600'
+    ? 'bg-gradient-to-r from-blue-500 to-blue-600'
+    : 'bg-gradient-to-r from-orange-500 to-orange-600'
 );
 
 const closeButtonClasses = computed(() =>
@@ -175,33 +185,3 @@ const primaryButtonClasses = computed(() =>
 const showContinueButton = computed(() => props.currentStep < props.totalSteps - 1);
 const showCompleteButton = computed(() => props.currentStep === props.totalSteps - 1);
 </script>
-
-<style scoped>
-.overlay-enter-active,
-.overlay-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.overlay-enter-from,
-.overlay-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active {
-  transition: all 0.3s ease;
-}
-
-.modal-leave-active {
-  transition: all 0.2s ease;
-}
-
-.modal-enter-from {
-  opacity: 0;
-  transform: translateY(-20px) scale(0.95);
-}
-
-.modal-leave-to {
-  opacity: 0;
-  transform: translateY(10px) scale(0.98);
-}
-</style>
