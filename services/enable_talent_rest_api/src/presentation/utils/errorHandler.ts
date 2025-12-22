@@ -1,13 +1,5 @@
 import { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
-
-/**
- * Type for async route handlers
- */
-type AsyncHandler = (
-  req: FastifyRequest,
-  reply: FastifyReply,
-  fastify: FastifyInstance
-) => Promise<any>;
+import type { AsyncHandler } from '@domain/types/utils.js';
 
 /**
  * Wraps an async handler with standardized error handling

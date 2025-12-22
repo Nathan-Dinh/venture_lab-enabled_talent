@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
-import { withErrorHandler } from '../../application/utils/errorHandler.js';
+import { withErrorHandler } from '../utils/errorHandler.js';
 
 /**
  * Handle user signup

@@ -1,13 +1,6 @@
 export interface SignupDto {
   email: string;
   password: string;
-  options?: {
-    data?: {
-      full_name?: string;
-      [key: string]: any;
-    };
-    emailRedirectTo?: string;
-  };
 }
 
 export interface LoginDto {
@@ -16,7 +9,16 @@ export interface LoginDto {
 }
 
 export interface OAuthProviderDto {
-  provider: 'google' | 'github' | 'gitlab' | 'bitbucket' | 'azure' | 'facebook' | 'twitter' | 'discord' | 'twitch';
+  provider:
+    | 'google'
+    | 'github'
+    | 'gitlab'
+    | 'bitbucket'
+    | 'azure'
+    | 'facebook'
+    | 'twitter'
+    | 'discord'
+    | 'twitch';
   options?: {
     redirectTo?: string;
     scopes?: string;

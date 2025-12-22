@@ -7,9 +7,8 @@ export default fp(async (fastify: FastifyInstance) => {
   const supabaseUrl = process.env.SUPABASE_PROJECT_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !supabaseServiceKey) {
+  if (!supabaseUrl || !supabaseServiceKey)
     throw new Error('SUPABASE_PROJECT_URL and SUPABASE_SERVICE_ROLE_KEY must be set');
-  }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     auth: {
@@ -19,6 +18,5 @@ export default fp(async (fastify: FastifyInstance) => {
   });
 
   fastify.decorate('supabase', supabase);
-
   fastify.log.info('Supabase client initialized');
 });

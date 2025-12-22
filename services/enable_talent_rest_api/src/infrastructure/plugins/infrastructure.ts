@@ -1,20 +1,23 @@
 // src/plugins/infrastructure.ts
 import fp from 'fastify-plugin';
 import { FastifyInstance } from 'fastify';
-import fastifyCors from '@fastify/cors';
 import fastifyPostgres from '@fastify/postgres';
 
 export default fp(async (fastify: FastifyInstance) => {
-  const corsOrigin = (process.env.CORS_ORIGIN || 'http://localhost:7005').split(',');
+  const allowedIPs = process.env.ALLOWED_IPS?.split(',') || [
+    '127.0.0.1',
+    '::1',
+    '::ffff:127.0.0.1',
+  ];
 
-  // Configure CORS
-  fastify.register(fastifyCors, {
-    origin: corsOrigin,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
+  fastify.addHook('onRequest', async (request, reply) => {
+    const clientIP = request.ip;
+    if (!allowedIPs.includes(clientIP)) {
+      fastify.log.warn(`Blocked request from unauthorized IP: ${clientIP}`);
+      reply.code(403).send({ error: 'Forbidden' });
+    }
   });
 
-  // Configure PostgreSQL connection
   fastify.register(fastifyPostgres, {
     connectionString: process.env.SUPABASE_DATABASE_URL,
   });

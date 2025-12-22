@@ -1,5 +1,4 @@
 import { FastifyInstance } from 'fastify';
-import { listMentors, findMentorById } from '../../infrastructure/repositories/mentorRepository.js';
 import type { Mentor, MentorCard, PaginatedResponse } from '../../domain/types/models.js';
 
 /**
@@ -29,7 +28,7 @@ export async function getMentors(
     ? filters.skills.split(',').map((s) => s.trim())
     : undefined;
 
-  return await listMentors(fastify, {
+  return await fastify.uow.mentorRepository.listMentors({
     location: filters.location,
     minRating: filters.minRating,
     skills,
@@ -45,7 +44,7 @@ export async function getMentorById(
   fastify: FastifyInstance,
   mentorId: string
 ): Promise<Mentor> {
-  const mentor = await findMentorById(fastify, mentorId);
+  const mentor = await fastify.uow.mentorRepository.findMentorById(mentorId);
 
   if (!mentor) {
     throw {

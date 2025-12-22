@@ -49,7 +49,6 @@ export function useApiRequestHandler(
   endpoint: string,
   options: ApiRequestOptions = {}
 ): ApiServiceMethods {
-  const baseUrl = `/backend/api${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   const token = useCookie('token').value;
 
   const handleResponseError = ({ response }: { response: Response }) => {
@@ -69,6 +68,6 @@ export function useApiRequestHandler(
   };
 
   return {
-    core: () => createRequestMethods(`/core${baseUrl}`, requestOptions),
+    core: () => createRequestMethods(`/core/backend/api${endpoint}`, requestOptions),
   };
 }

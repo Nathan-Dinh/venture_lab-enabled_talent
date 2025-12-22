@@ -4,6 +4,7 @@ import {
   getProfileHandler,
   updateProfileHandler,
   deleteAccountHandler,
+  saveJourneyDataHandler,
 } from '../controllers/profileController.js';
 import { authenticate } from '../middleware/authenticate.js';
 
@@ -25,6 +26,12 @@ const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     '/profile',
     { preHandler: [authenticate] },
     async (req, reply) => deleteAccountHandler(req, reply, fastify)
+  );
+
+  fastify.post(
+    '/profile/journey',
+    { preHandler: [authenticate] },
+    async (req, reply) => saveJourneyDataHandler(req, reply, fastify)
   );
 };
 

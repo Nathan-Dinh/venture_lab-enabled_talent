@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
-import { withErrorHandler } from '../../application/utils/errorHandler.js';
+import { withErrorHandler } from '../utils/errorHandler.js';
 
 /**
  * Add skill for user

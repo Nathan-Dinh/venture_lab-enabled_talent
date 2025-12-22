@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
 import { FastifyRequest } from 'fastify/types/request.js';
-import { withErrorHandler } from '../../application/utils/errorHandler.js';
+import { withErrorHandler } from '../utils/errorHandler.js';
 
 /**
  * Get user profile with experience, education, and skills
@@ -49,3 +49,36 @@ async function deleteAccountHandlerImpl(
 }
 
 export const deleteAccountHandler = withErrorHandler(deleteAccountHandlerImpl);
+
+/**
+ * Save journey setup data after signup
+ * POST /api/profile/journey
+ * Requires authentication
+ */
+async function saveJourneyDataHandlerImpl(
+  req: FastifyRequest,
+  reply: FastifyReply,
+  _fastify: FastifyInstance
+) {
+  // TODO: Implement journey data save logic
+  // Extract user ID from authentication token
+  // Validate form data based on journeyType
+  // Save to appropriate database table (user_profiles / mentor_profiles)
+  // Update user metadata flag: profileComplete = true
+
+  const body = req.body as { journeyType: 'user' | 'mentor'; formData: any };
+  const { journeyType, formData } = body;
+
+  // Placeholder response - replace with actual implementation
+  return reply.status(200).send({
+    success: true,
+    message: 'Profile completed successfully',
+    data: {
+      journeyType,
+      formData,
+      profileComplete: true,
+    },
+  });
+}
+
+export const saveJourneyDataHandler = withErrorHandler(saveJourneyDataHandlerImpl);

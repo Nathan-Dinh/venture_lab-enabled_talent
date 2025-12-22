@@ -1,9 +1,4 @@
 import { FastifyInstance } from 'fastify';
-import {
-  createUser,
-  findUserById,
-  getUserProfile,
-} from '@infrastructure/repositories/userRepository.js';
 import { SignupSchema, LoginSchema, AuthResponse, UserRole } from '@domain/types/models.js';
 
 export async function signup(fastify: FastifyInstance, data: unknown): Promise<AuthResponse> {
@@ -50,7 +45,7 @@ export async function signup(fastify: FastifyInstance, data: unknown): Promise<A
   }
 
   // Create user record in database
-  const user = await createUser(fastify, {
+  const user = await fastify.uow.userRepository.createUser({
     user_id: authData.user.id,
     name,
     email,
@@ -96,7 +91,7 @@ export async function login(fastify: FastifyInstance, data: unknown): Promise<Au
   }
 
   // Fetch user details from database
-  const user = await findUserById(fastify, authData.user.id);
+  const user = await fastify.uow.userRepository.findUserById(authData.user.id);
 
   if (!user) {
     throw {
@@ -121,7 +116,7 @@ export async function login(fastify: FastifyInstance, data: unknown): Promise<Au
  * Get current authenticated user
  */
 export async function getCurrentUser(fastify: FastifyInstance, userId: string): Promise<any> {
-  const user = await getUserProfile(fastify, userId);
+  const user = await fastify.uow.userRepository.getUserProfile(userId);
 
   if (!user) {
     throw {

@@ -12,6 +12,10 @@ declare module 'fastify' {
   }
 
   interface FastifyInstance {
+    uow: UnitOfWork;
+  }
+
+  interface FastifyInstance {
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     requireAuthority: (
       authority: string | string[]

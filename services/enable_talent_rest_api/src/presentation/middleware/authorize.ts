@@ -1,6 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { UserRole } from '../../domain/types/models.js';
-import { isMentor } from '../../infrastructure/repositories/mentorRepository.js';
 
 /**
  * Authorization Middleware (Functional)
@@ -73,7 +72,7 @@ export async function requireVerifiedMentor(
   }
 
   // Verify in database (authoritative check)
-  const isVerified = await isMentor(request.server, user.user_id);
+  const isVerified = await request.server.uow.mentorRepository.isMentor(user.user_id);
 
   if (!isVerified) {
     return reply.status(403).send({

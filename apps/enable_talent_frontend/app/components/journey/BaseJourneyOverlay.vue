@@ -101,7 +101,7 @@
                   v-else-if="showCompleteButton"
                   @click="emit('complete')"
                   :disabled="isLoading"
-                  class="ml-auto px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="ml-auto px-8 py-3 bg-linear-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {{ isLoading ? 'Saving...' : completeButtonText }}
                 </button>

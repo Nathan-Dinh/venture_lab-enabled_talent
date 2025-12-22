@@ -97,6 +97,8 @@ definePageMeta({
   ssr: false,
 });
 
+const { signup } = useCoreAuth();
+
 const name = ref('');
 const email = ref('');
 const password = ref('');
@@ -123,10 +125,6 @@ const ERROR_MESSAGES = {
   429: 'Too many signup attempts. Please try again later.',
   500: 'Server error. Please try again later.',
 };
-
-const journeyComponent = computed(() =>
-  role.value === 'mentor' ? 'JourneyMentorJourneyOverlay' : 'JourneyUserJourneyOverlay'
-);
 
 const hasFormErrors = computed(
   () => !!emailError.value || !!passwordError.value || !!confirmPasswordError.value
@@ -189,23 +187,17 @@ const handleUserJourneyComplete = async (journeyData = null) => {
   isLoading.value = true;
 
   try {
-    const res = await $fetch('/api/auth/signup', {
-      method: 'POST',
-      body: {
-        name: name.value,
-        email: email.value,
-        password: password.value,
-        role: 'User',
-        journeyData,
-      },
+    const { data, error } = await signup({
+      password: password.value,
+      email: email.value,
     });
 
-    if (res?.success && res?.data?.token) {
-      showOverlay.value = false;
-      await navigateTo('/dashboard');
-    } else {
-      error.value = res?.error || 'Signup failed. Please try again.';
-    }
+    // if (res?.success && res?.data?.token) {
+    //   showOverlay.value = false;
+    //   await navigateTo('/dashboard');
+    // } else {
+    //   error.value = res?.error || 'Signup failed. Please try again.';
+    // }
   } catch (err) {
     handleError(err, 'user');
   } finally {

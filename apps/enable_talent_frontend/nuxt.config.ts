@@ -7,6 +7,10 @@ export default defineNuxtConfig({
     port: 7005,
     host: '0.0.0.0',
   },
+  runtimeConfig: {
+    apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:7001',
+    public: {},
+  },
   modules: ['shadcn-nuxt', '@pinia/nuxt', '@nuxtjs/supabase'],
   supabase: {
     redirect: true,
@@ -19,8 +23,8 @@ export default defineNuxtConfig({
   },
   nitro: {
     devProxy: {
-      '/api': {
-        target: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8005',
+      '/core/backend/api': {
+        target: process.env.API_BASE_URL || 'http://localhost:7001',
         changeOrigin: true,
       },
     },
