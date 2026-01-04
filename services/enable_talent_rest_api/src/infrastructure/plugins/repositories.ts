@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
 import { FastifyInstance } from 'fastify';
-import { UnitOfWork } from '../unitOfWork/unitOfWork.js';
+import { UnitOfWork } from '@infrastructure/unitOfWork/unitOfWork.js';
 
 declare module 'fastify' {
   interface FastifyInstance {

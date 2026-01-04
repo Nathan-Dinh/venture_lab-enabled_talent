@@ -7,11 +7,6 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/**
- * Builds and configures the Fastify application.
- *
- * @return {Promise<FastifyInstance>} The configured Fastify application.
- */
 async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({ logger: true });
 
@@ -42,17 +37,13 @@ async function buildApp(): Promise<FastifyInstance> {
   return app;
 }
 
-/**
- * Main function to start the server.
- * @return {Promise<void>}
- */
 async function main(): Promise<void> {
   const app = await buildApp();
 
   try {
     const client = await app.pg.connect(); // get a client from the pool
     app.log.info('PostgreSQL connection successful');
-    client.release(); // release back to pool
+    client.release();
 
     const address = await app.listen({ port: parseInt(process.env.PORT || '8005') });
     app.log.info(`Server listening at ${address}`);

@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import type { Mentor, MentorCard, PaginatedResponse } from '../../domain/types/models.js';
+import type { Mentor, MentorCard, PaginatedResponse } from '@domain/types/models.js';
 
 /**
  * Mentor Service (Functional)
@@ -24,9 +24,7 @@ export async function getMentors(
   const offset = (page - 1) * pageSize;
 
   // Parse skills from comma-separated string
-  const skills = filters.skills
-    ? filters.skills.split(',').map((s) => s.trim())
-    : undefined;
+  const skills = filters.skills ? filters.skills.split(',').map((s) => s.trim()) : undefined;
 
   return await fastify.uow.mentorRepository.listMentors({
     location: filters.location,
@@ -40,10 +38,7 @@ export async function getMentors(
 /**
  * Get mentor details by ID
  */
-export async function getMentorById(
-  fastify: FastifyInstance,
-  mentorId: string
-): Promise<Mentor> {
+export async function getMentorById(fastify: FastifyInstance, mentorId: string): Promise<Mentor> {
   const mentor = await fastify.uow.mentorRepository.findMentorById(mentorId);
 
   if (!mentor) {

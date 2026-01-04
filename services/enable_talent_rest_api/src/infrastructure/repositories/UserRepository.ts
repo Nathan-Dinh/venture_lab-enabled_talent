@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import type { User, UserProfile } from '../../domain/types/models.js';
+import type { User, UserProfile } from '@domain/types/models.js';
 
 export class UserRepository {
   constructor(private fastify: FastifyInstance) {}

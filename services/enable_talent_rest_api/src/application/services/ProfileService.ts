@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { UpdateProfileSchema, UserProfile, UserRole } from '../../domain/types/models.js';
+import { UpdateProfileSchema, UserProfile, UserRole } from '@domain/types/models.js';
 
 /**
  * Profile Service (Functional)
@@ -9,10 +9,7 @@ import { UpdateProfileSchema, UserProfile, UserRole } from '../../domain/types/m
 /**
  * Get user profile with experience, education, and skills
  */
-export async function getProfile(
-  fastify: FastifyInstance,
-  userId: string
-): Promise<UserProfile> {
+export async function getProfile(fastify: FastifyInstance, userId: string): Promise<UserProfile> {
   const profile = await fastify.uow.userRepository.getUserFullProfile(userId);
 
   if (!profile) {
@@ -48,7 +45,10 @@ export async function updateProfile(
     };
   }
 
-  const updatedProfile = await fastify.uow.userRepository.updateUserProfile(userId, validationResult.data);
+  const updatedProfile = await fastify.uow.userRepository.updateUserProfile(
+    userId,
+    validationResult.data
+  );
 
   if (!updatedProfile) {
     throw {
@@ -64,10 +64,7 @@ export async function updateProfile(
 /**
  * Delete user account
  */
-export async function deleteAccount(
-  fastify: FastifyInstance,
-  userId: string
-): Promise<void> {
+export async function deleteAccount(fastify: FastifyInstance, userId: string): Promise<void> {
   const deleted = await fastify.uow.userRepository.deleteUser(userId);
 
   if (!deleted) {
