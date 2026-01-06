@@ -1,4 +1,5 @@
 import type {
+  SignupDto,
   LoginDto,
   OAuthProviderDto,
   AuthResponseDto,
@@ -33,6 +34,24 @@ export function useSupabaseAuth() {
       }
 
       return { data: null, error: new Error('Login failed: No user data returned') };
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err : new Error('An unexpected error occurred'),
+      };
+    }
+  }
+
+  async function signup(userSignupDto: SignupDto) {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: userSignupDto.email,
+        password: userSignupDto.password,
+      });
+
+      if (error) return { data: null, error };
+
+      return { data, error: null };
     } catch (err) {
       return {
         data: null,
@@ -77,7 +96,6 @@ export function useSupabaseAuth() {
         return { data: null, error };
       }
 
-      // Clear the token cookie
       const token = useCookie('token');
       token.value = null;
 
@@ -167,5 +185,6 @@ export function useSupabaseAuth() {
     getCurrentUser,
     resetPassword,
     updatePassword,
+    signup,
   };
 }
