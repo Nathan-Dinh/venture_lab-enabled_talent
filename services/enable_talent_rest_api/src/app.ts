@@ -3,12 +3,45 @@ import fastify, { FastifyInstance } from 'fastify';
 import fastifyAutoload from '@fastify/autoload';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { HttpError } from '@domain/types/errors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function buildApp(): Promise<FastifyInstance> {
   const app = fastify({ logger: true });
+
+  // Global error handler
+  app.setErrorHandler((error, _request, reply) => {
+    app.log.error(error);
+
+    if (error instanceof HttpError) {
+      const response: { success: false; error: string; details?: unknown } = {
+        success: false,
+        error: error.message,
+      };
+      if (error.details) {
+        response.details = error.details;
+      }
+      return reply.status(error.statusCode).send(response);
+    }
+
+    // Handle Fastify validation errors
+    const fastifyError = error as { validation?: unknown };
+    if (fastifyError.validation) {
+      return reply.status(400).send({
+        success: false,
+        error: 'Validation failed',
+        details: fastifyError.validation,
+      });
+    }
+
+    // Default to 500 for unknown errors
+    return reply.status(500).send({
+      success: false,
+      error: 'Internal server error',
+    });
+  });
 
   // Validate required environment variables
   const requiredEnvVars = [

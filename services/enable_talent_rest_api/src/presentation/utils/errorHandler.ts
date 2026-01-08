@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
+import { FastifyReply, FastifyRequest, FastifyInstance, RouteGenericInterface } from 'fastify';
 import type { AsyncHandler } from '@domain/types/utils.js';
 
 /**
@@ -8,8 +8,10 @@ import type { AsyncHandler } from '@domain/types/utils.js';
  * @param handler - The async handler function to wrap
  * @returns A wrapped handler with error handling
  */
-export function withErrorHandler(handler: AsyncHandler): AsyncHandler {
-  return async (req: FastifyRequest, reply: FastifyReply, fastify: FastifyInstance) => {
+export function withErrorHandler<T extends RouteGenericInterface = RouteGenericInterface>(
+  handler: AsyncHandler<T>
+): AsyncHandler<T> {
+  return async (req: FastifyRequest<T>, reply: FastifyReply, fastify: FastifyInstance) => {
     try {
       return await handler(req, reply, fastify);
     } catch (error) {

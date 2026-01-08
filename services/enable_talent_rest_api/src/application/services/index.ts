@@ -1,3 +1,3 @@
-export * from './authService.js';
-export * from './mentorService.js';
-export * from './profileService.js';
+export * from './AuthService.js';
+export * from './MentorService.js';
+export * from './ProfileService.js';

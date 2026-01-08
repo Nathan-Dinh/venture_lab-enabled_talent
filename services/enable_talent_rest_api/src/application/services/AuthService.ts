@@ -1,78 +1,137 @@
 import { FastifyInstance } from 'fastify';
-import { SignupSchema, LoginSchema, AuthResponse, UserRole } from '@domain/types/models.js';
+import {
+  LoginSchema,
+  LoginRequest,
+  UserRole,
+  UserSignupSchema,
+  UserSignupRequest,
+  MentorSignupSchema,
+  MentorSignupRequest,
+} from '@domain/types/models.js';
+import { HttpError } from '@domain/types/errors.js';
 
-export async function signup(fastify: FastifyInstance, data: unknown): Promise<AuthResponse> {
-  // Validate request data
-  const validationResult = SignupSchema.safeParse(data);
+export async function signupUser(fastify: FastifyInstance, data: UserSignupRequest): Promise<void> {
+  const validationResult = UserSignupSchema.safeParse(data);
   if (!validationResult.success) {
-    throw {
-      status: 400,
-      message: 'Validation failed',
-      details: validationResult.error.errors,
-    };
+    throw HttpError.badRequest('Validation failed', validationResult.error.errors);
   }
 
-  const { email, password, name, role } = validationResult.data;
+  const { email, password, name, journeyData } = validationResult.data;
 
-  // Determine user type ID based on role
-  const userTypeId = role === UserRole.MENTOR ? '2' : '1';
+  // Check if user already exists
+  const existingUser = await fastify.uow.userRepository.findByEmail(email);
+  if (existingUser) {
+    throw HttpError.conflict('An account with this email already exists');
+  }
 
-  // Create user with Supabase Auth
-  const { data: authData, error: authError } = await fastify.supabase.auth.signUp({
+  // Create user with Supabase Auth (admin API for auto-confirm)
+  const { data: authData, error: authError } = await fastify.supabase.auth.admin.createUser({
     email,
     password,
-    options: {
-      data: {
-        name,
-        usertype_id: userTypeId,
-        role: role || UserRole.USER,
-      },
+    email_confirm: true,
+    user_metadata: {
+      name,
+      role: UserRole.USER,
     },
   });
 
   if (authError) {
-    throw {
-      status: 400,
-      message: authError.message,
-    };
+    throw HttpError.badRequest(authError.message);
   }
 
-  if (!authData.user || !authData.session) {
-    throw {
-      status: 500,
-      message: 'Failed to create user session',
-    };
+  if (!authData.user) {
+    throw HttpError.internal('Failed to create user');
   }
 
-  // Create user record in database
-  const user = await fastify.uow.userRepository.createUser({
-    user_id: authData.user.id,
-    name,
+  // Insert journey data into user_details if provided
+  if (journeyData) {
+    await fastify.uow.userRepository.createUserDetails(authData.user.id, journeyData);
+
+    // Update user_profile with location and timezone if provided
+    if (journeyData.location || journeyData.timezone) {
+      await fastify.uow.userRepository.updateProfile(authData.user.id, {
+        location: journeyData.location,
+        timezone: journeyData.timezone,
+      });
+    }
+  }
+}
+
+export async function signupMentor(fastify: FastifyInstance, data: MentorSignupRequest): Promise<void> {
+  const validationResult = MentorSignupSchema.safeParse(data);
+  if (!validationResult.success) {
+    throw HttpError.badRequest('Validation failed', validationResult.error.errors);
+  }
+
+  const { email, password, name, journeyData } = validationResult.data;
+
+  // Check if user already exists
+  const existingUser = await fastify.uow.userRepository.findByEmail(email);
+  if (existingUser) {
+    throw HttpError.conflict('An account with this email already exists');
+  }
+
+  // Create user with Supabase Auth (admin API for auto-confirm)
+  const { data: authData, error: authError } = await fastify.supabase.auth.admin.createUser({
     email,
-    usertype_id: userTypeId,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      name,
+      role: UserRole.MENTOR,
+    },
   });
 
-  return {
-    token: authData.session.access_token,
-    user: {
-      ...user,
-      role: role || UserRole.USER,
-    },
+  if (authError) {
+    throw HttpError.badRequest(authError.message);
+  }
+
+  if (!authData.user) {
+    throw HttpError.internal('Failed to create user');
+  }
+
+  // Mentors also get the User role (they can act as both)
+  await fastify.uow.userRepository.addRole(authData.user.id, UserRole.USER);
+
+  // Insert journey data into mentor_details if provided
+  if (journeyData) {
+    await fastify.uow.userRepository.createMentorDetails(authData.user.id, journeyData);
+
+    // Update user_profile with profile data if provided
+    if (journeyData.headline || journeyData.bio || journeyData.location || journeyData.timezone) {
+      await fastify.uow.userRepository.updateProfile(authData.user.id, {
+        headline: journeyData.headline,
+        bio: journeyData.bio,
+        location: journeyData.location,
+        timezone: journeyData.timezone,
+      });
+    }
+  }
+}
+
+interface LoginResponse {
+  token: string;
+  user: {
+    user_id: string;
+    name: string;
+    email: string;
+    headline?: string;
+    bio?: string;
+    location?: string;
+    timezone?: string;
+    profile_image_url?: string;
+    roles: string[];
   };
 }
 
 /**
  * Login user
  */
-export async function login(fastify: FastifyInstance, data: unknown): Promise<AuthResponse> {
+export async function login(fastify: FastifyInstance, data: LoginRequest): Promise<LoginResponse> {
   // Validate request data
   const validationResult = LoginSchema.safeParse(data);
   if (!validationResult.success) {
-    throw {
-      status: 400,
-      message: 'Validation failed',
-      details: validationResult.error.errors,
-    };
+    throw HttpError.badRequest('Validation failed', validationResult.error.errors);
   }
 
   const { email, password } = validationResult.data;
@@ -84,30 +143,31 @@ export async function login(fastify: FastifyInstance, data: unknown): Promise<Au
   });
 
   if (authError || !authData.user || !authData.session) {
-    throw {
-      status: 401,
-      message: 'Invalid email or password',
-    };
+    throw HttpError.unauthorized('Invalid email or password');
   }
 
-  // Fetch user details from database
-  const user = await fastify.uow.userRepository.findUserById(authData.user.id);
+  // Fetch user profile from database
+  const userProfile = await fastify.uow.userRepository.findById(authData.user.id);
 
-  if (!user) {
-    throw {
-      status: 404,
-      message: 'User not found in database',
-    };
+  if (!userProfile) {
+    throw HttpError.notFound('User profile not found');
   }
 
-  // Determine user role from usertype_id
-  const userRole = user.usertype_id === '2' ? UserRole.MENTOR : UserRole.USER;
+  // Get user roles
+  const roles = await fastify.uow.userRepository.getUserRoles(authData.user.id);
 
   return {
     token: authData.session.access_token,
     user: {
-      ...user,
-      role: userRole,
+      user_id: userProfile.id,
+      name: userProfile.name,
+      email: userProfile.email,
+      headline: userProfile.headline,
+      bio: userProfile.bio,
+      location: userProfile.location,
+      timezone: userProfile.timezone,
+      profile_image_url: userProfile.profile_image_url,
+      roles,
     },
   };
 }
@@ -116,19 +176,17 @@ export async function login(fastify: FastifyInstance, data: unknown): Promise<Au
  * Get current authenticated user
  */
 export async function getCurrentUser(fastify: FastifyInstance, userId: string): Promise<any> {
-  const user = await fastify.uow.userRepository.getUserProfile(userId);
+  const userProfile = await fastify.uow.userRepository.findById(userId);
 
-  if (!user) {
-    throw {
-      status: 404,
-      message: 'User not found',
-    };
+  if (!userProfile) {
+    throw HttpError.notFound('User not found');
   }
 
-  const userRole = user.usertype_id === '2' ? UserRole.MENTOR : UserRole.USER;
+  // Get user roles
+  const roles = await fastify.uow.userRepository.getUserRoles(userId);
 
   return {
-    ...user,
-    role: userRole,
+    ...userProfile,
+    roles,
   };
 }

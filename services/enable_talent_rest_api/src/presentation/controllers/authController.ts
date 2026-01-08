@@ -1,48 +1,67 @@
-import { FastifyReply, FastifyRequest, FastifyInstance } from 'fastify';
-import { withErrorHandler } from '@presentation/utils/errorHandler.js';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import * as AuthService from '@application/services/AuthService.js';
+import { HttpError } from '@domain/types/errors.js';
+import type { UserSignupRequest, MentorSignupRequest, LoginRequest } from '@domain/types/models.js';
 
 /**
- * Handle user signup
- * POST /api/auth/signup
+ * Handle user signup (User role)
+ * POST /api/auth/signup/user
  */
-async function signupHandlerImpl(
-  _req: FastifyRequest,
-  _reply: FastifyReply,
-  _fastify: FastifyInstance
+export async function signupUserHandler(
+  req: FastifyRequest<{ Body: UserSignupRequest }>,
+  reply: FastifyReply
 ) {
-  // TODO: Implement signup logic
-  throw new Error('Not implemented');
+  await AuthService.signupUser(req.server, req.body);
+  return reply.status(201).send({
+    success: true,
+    message: 'Account created successfully. Please login.',
+  });
 }
 
-export const signupHandler = withErrorHandler(signupHandlerImpl);
+/**
+ * Handle mentor signup (Mentor role)
+ * POST /api/auth/signup/mentor
+ */
+export async function signupMentorHandler(
+  req: FastifyRequest<{ Body: MentorSignupRequest }>,
+  reply: FastifyReply
+) {
+  await AuthService.signupMentor(req.server, req.body);
+  return reply.status(201).send({
+    success: true,
+    message: 'Mentor account created successfully. Please login.',
+  });
+}
 
 /**
  * Handle user login
  * POST /api/auth/login
  */
-async function loginHandlerImpl(
-  _req: FastifyRequest,
-  _reply: FastifyReply,
-  _fastify: FastifyInstance
+export async function loginHandler(
+  req: FastifyRequest<{ Body: LoginRequest }>,
+  reply: FastifyReply
 ) {
-  // TODO: Implement login logic
-  throw new Error('Not implemented');
+  const result = await AuthService.login(req.server, req.body);
+  return reply.status(200).send({
+    success: true,
+    ...result,
+  });
 }
-
-export const loginHandler = withErrorHandler(loginHandlerImpl);
 
 /**
  * Get current authenticated user
  * GET /api/auth/me
  * Requires authentication
  */
-async function getCurrentUserHandlerImpl(
-  _req: FastifyRequest,
-  _reply: FastifyReply,
-  _fastify: FastifyInstance
-) {
-  // TODO: Implement get current user logic
-  throw new Error('Not implemented');
-}
+export async function getCurrentUserHandler(req: FastifyRequest, reply: FastifyReply) {
+  const userId = req.user?.user_id;
+  if (!userId) {
+    throw HttpError.unauthorized();
+  }
 
-export const getCurrentUserHandler = withErrorHandler(getCurrentUserHandlerImpl);
+  const user = await AuthService.getCurrentUser(req.server, userId);
+  return reply.status(200).send({
+    success: true,
+    user,
+  });
+}
