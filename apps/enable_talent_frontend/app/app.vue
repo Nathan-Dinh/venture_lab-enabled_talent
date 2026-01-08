@@ -3,6 +3,7 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <GlobalAlertContainer />
   </main>
 </template>
 
