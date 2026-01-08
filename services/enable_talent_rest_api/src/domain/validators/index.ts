@@ -1,1 +1,1 @@
-export { UserValidator } from './UserValidator.js';
+export { UserValidator } from './UserValidator';

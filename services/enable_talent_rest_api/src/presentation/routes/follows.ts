@@ -3,8 +3,8 @@ import {
   getFollowedMentorsHandler,
   followMentorHandler,
   unfollowMentorHandler,
-} from '../controllers/followController.js';
-import { authenticate } from '../middleware/authenticate.js';
+} from '../controllers/followController';
+import { authenticate } from '../middleware/authenticate';
 
 const followRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/follows', { preHandler: [authenticate] }, async (req, reply) =>

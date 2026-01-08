@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { UserRole } from '../../domain/types/models.js';
+import { UserRole } from '../../domain/types/models';
 
 /**
  * Authorization Middleware (Functional)

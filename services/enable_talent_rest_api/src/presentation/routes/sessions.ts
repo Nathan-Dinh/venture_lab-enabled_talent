@@ -4,8 +4,8 @@ import {
   bookSessionHandler,
   updateSessionHandler,
   cancelSessionHandler,
-} from '../controllers/sessionController.js';
-import { authenticate } from '../middleware/authenticate.js';
+} from '../controllers/sessionController';
+import { authenticate } from '../middleware/authenticate';
 
 const sessionRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   fastify.get('/sessions', { preHandler: [authenticate] }, async (req, reply) =>

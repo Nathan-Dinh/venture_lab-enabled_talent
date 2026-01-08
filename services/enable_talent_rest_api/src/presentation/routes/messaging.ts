@@ -1,42 +1,34 @@
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 import {
   listConversationsHandler,
   createOrGetConversationHandler,
   getConversationWithMessagesHandler,
   sendMessageHandler,
   markMessageAsReadHandler,
-} from '../controllers/messagingController.js';
-import { authenticate } from '../middleware/authenticate.js';
+} from '../controllers/messagingController';
+import { authenticate } from '../middleware/authenticate';
 
-const messagingRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  // Conversations
-  fastify.get('/messaging/conversations', { preHandler: [authenticate] }, async (req, reply) =>
-    listConversationsHandler(req, reply, fastify)
+const messagingRoutes: FastifyPluginAsync = async (fastify) => {
+  fastify.get('/messaging/conversations', { preHandler: [authenticate] }, listConversationsHandler);
+  fastify.post(
+    '/messaging/conversations',
+    { preHandler: [authenticate] },
+    createOrGetConversationHandler
   );
-
-  fastify.post('/messaging/conversations', { preHandler: [authenticate] }, async (req, reply) =>
-    createOrGetConversationHandler(req, reply, fastify)
-  );
-
-  // Get conversation with messages
   fastify.get(
     '/messaging/conversations/:conversationId',
     { preHandler: [authenticate] },
-    async (req, reply) => getConversationWithMessagesHandler(req, reply, fastify)
+    getConversationWithMessagesHandler
   );
-
-  // Send message
   fastify.post(
     '/messaging/conversations/:conversationId/messages',
     { preHandler: [authenticate] },
-    async (req, reply) => sendMessageHandler(req, reply, fastify)
+    sendMessageHandler
   );
-
-  // Mark message as read
   fastify.patch(
     '/messaging/messages/:messageId/read',
     { preHandler: [authenticate] },
-    async (req, reply) => markMessageAsReadHandler(req, reply, fastify)
+    markMessageAsReadHandler
   );
 };
 

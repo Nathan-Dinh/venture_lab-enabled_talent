@@ -1,2 +1,2 @@
-export * from './authenticate.js';
-export * from './authorize.js';
+export * from './authenticate';
+export * from './authorize';

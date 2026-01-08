@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import type { Mentor, MentorCard, PaginatedResponse } from '@domain/types/models.js';
+import type { Mentor, MentorCard, PaginatedResponse } from '@domain/types/models';
 
 /**
  * Mentor Service (Functional)

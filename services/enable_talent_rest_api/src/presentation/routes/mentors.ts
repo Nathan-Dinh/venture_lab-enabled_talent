@@ -1,13 +1,10 @@
 import fp from 'fastify-plugin';
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import {
-  listMentorsHandler,
-  getMentorHandler,
-} from '../controllers/mentorController.js';
+import { FastifyPluginAsync } from 'fastify';
+import { listMentorsHandler, getMentorHandler } from '../controllers/mentorController';
 
-const mentorRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  fastify.get('/mentors', async (req, reply) => listMentorsHandler(req, reply, fastify));
-  fastify.get('/mentors/:id', async (req, reply) => getMentorHandler(req, reply, fastify));
+const mentorRoutes: FastifyPluginAsync = async (fastify) => {
+  fastify.get('/mentors', listMentorsHandler);
+  fastify.get('/mentors/:id', getMentorHandler);
 };
 
 export default fp(mentorRoutes);

@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { UserRepository } from '@infrastructure/repositories/UserRepository.js';
-import { MentorRepository } from '@infrastructure/repositories/MentorRepository.js';
+import { UserRepository } from '@infrastructure/repositories/UserRepository';
+import { MentorRepository } from '@infrastructure/repositories/MentorRepository';
 
 export class UnitOfWork {
   public userRepository: UserRepository;

@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import type { JwtPayload } from '../../domain/types/models.js';
+import type { JwtPayload } from '../../domain/types/models';
 
 /**
  * Authentication Middleware (Functional)

@@ -7,8 +7,8 @@ import {
   UserSignupRequest,
   MentorSignupSchema,
   MentorSignupRequest,
-} from '@domain/types/models.js';
-import { HttpError } from '@domain/types/errors.js';
+} from '@domain/types/models';
+import { HttpError } from '@domain/types/errors';
 
 export async function signupUser(fastify: FastifyInstance, data: UserSignupRequest): Promise<void> {
   const validationResult = UserSignupSchema.safeParse(data);

@@ -3,7 +3,7 @@ import fastify, { FastifyInstance } from 'fastify';
 import fastifyAutoload from '@fastify/autoload';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { HttpError } from '@domain/types/errors.js';
+import { HttpError } from '@domain/types/errors';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { UpdateProfileSchema, UserProfile, UserRole } from '@domain/types/models.js';
+import { UpdateProfileSchema, UserProfile, UserRole } from '@domain/types/models';
 
 /**
  * Profile Service (Functional)

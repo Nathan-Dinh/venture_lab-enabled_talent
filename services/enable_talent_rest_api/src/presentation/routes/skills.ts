@@ -1,27 +1,17 @@
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 import {
   addSkillHandler,
   getUserSkillsHandler,
   deleteSkillHandler,
   endorseSkillHandler,
-} from '../controllers/skillController.js';
-import { authenticate } from '../middleware/authenticate.js';
+} from '../controllers/skillController';
+import { authenticate } from '../middleware/authenticate';
 
-const skillRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  fastify.get('/skills', { preHandler: [authenticate] }, async (req, reply) =>
-    getUserSkillsHandler(req, reply, fastify)
-  );
-  fastify.post('/skills', { preHandler: [authenticate] }, async (req, reply) =>
-    addSkillHandler(req, reply, fastify)
-  );
-  fastify.delete('/skills/:skillId', { preHandler: [authenticate] }, async (req, reply) =>
-    deleteSkillHandler(req, reply, fastify)
-  );
-  fastify.post(
-    '/skills/:skillId/endorse',
-    { preHandler: [authenticate] },
-    async (req, reply) => endorseSkillHandler(req, reply, fastify)
-  );
+const skillRoutes: FastifyPluginAsync = async (fastify) => {
+  fastify.get('/skills', { preHandler: [authenticate] }, getUserSkillsHandler);
+  fastify.post('/skills', { preHandler: [authenticate] }, addSkillHandler);
+  fastify.delete('/skills/:skillId', { preHandler: [authenticate] }, deleteSkillHandler);
+  fastify.post('/skills/:skillId/endorse', { preHandler: [authenticate] }, endorseSkillHandler);
 };
 
 export default skillRoutes;

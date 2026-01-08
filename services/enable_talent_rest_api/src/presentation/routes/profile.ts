@@ -1,38 +1,18 @@
 import fp from 'fastify-plugin';
-import { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 import {
   getProfileHandler,
   updateProfileHandler,
   deleteAccountHandler,
   saveJourneyDataHandler,
-} from '../controllers/profileController.js';
-import { authenticate } from '../middleware/authenticate.js';
+} from '../controllers/profileController';
+import { authenticate } from '../middleware/authenticate';
 
-const profileRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  // All profile routes require authentication
-  fastify.get(
-    '/profile',
-    { preHandler: [authenticate] },
-    async (req, reply) => getProfileHandler(req, reply, fastify)
-  );
-
-  fastify.patch(
-    '/profile',
-    { preHandler: [authenticate] },
-    async (req, reply) => updateProfileHandler(req, reply, fastify)
-  );
-
-  fastify.delete(
-    '/profile',
-    { preHandler: [authenticate] },
-    async (req, reply) => deleteAccountHandler(req, reply, fastify)
-  );
-
-  fastify.post(
-    '/profile/journey',
-    { preHandler: [authenticate] },
-    async (req, reply) => saveJourneyDataHandler(req, reply, fastify)
-  );
+const profileRoutes: FastifyPluginAsync = async (fastify) => {
+  fastify.get('/profile', { preHandler: [authenticate] }, getProfileHandler);
+  fastify.patch('/profile', { preHandler: [authenticate] }, updateProfileHandler);
+  fastify.delete('/profile', { preHandler: [authenticate] }, deleteAccountHandler);
+  fastify.post('/profile/journey', { preHandler: [authenticate] }, saveJourneyDataHandler);
 };
 
 export default fp(profileRoutes);

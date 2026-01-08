@@ -1,28 +1,18 @@
-import { FastifyPluginAsync, FastifyInstance } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 import {
   signupUserHandler,
   signupMentorHandler,
   loginHandler,
   getCurrentUserHandler,
-} from '../controllers/authController.js';
-import { authenticate } from '../middleware/authenticate.js';
-import type { UserSignupRequest, MentorSignupRequest, LoginRequest } from '@domain/types/models.js';
+} from '../controllers/authController';
+import { authenticate } from '../middleware/authenticate';
+import type { UserSignupRequest, MentorSignupRequest, LoginRequest } from '@domain/types/models';
 
-const authRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  fastify.post<{ Body: UserSignupRequest }>('/auth/signup/user', async (req, reply) =>
-    signupUserHandler(req, reply)
-  );
-  fastify.post<{ Body: MentorSignupRequest }>('/auth/signup/mentor', async (req, reply) =>
-    signupMentorHandler(req, reply)
-  );
-
-  fastify.post<{ Body: LoginRequest }>('/auth/login', async (req, reply) =>
-    loginHandler(req, reply)
-  );
-
-  fastify.get('/auth/me', { preHandler: [authenticate] }, async (req, reply) =>
-    getCurrentUserHandler(req, reply)
-  );
+const authRoutes: FastifyPluginAsync = async (fastify) => {
+  fastify.post<{ Body: UserSignupRequest }>('/auth/signup/user', signupUserHandler);
+  fastify.post<{ Body: MentorSignupRequest }>('/auth/signup/mentor', signupMentorHandler);
+  fastify.post<{ Body: LoginRequest }>('/auth/login', loginHandler);
+  fastify.get('/auth/me', { preHandler: [authenticate] }, getCurrentUserHandler);
 };
 
 export default authRoutes;

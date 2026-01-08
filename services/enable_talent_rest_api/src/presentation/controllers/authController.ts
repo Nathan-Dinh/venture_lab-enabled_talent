@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import * as AuthService from '@application/services/AuthService.js';
-import { HttpError } from '@domain/types/errors.js';
-import type { UserSignupRequest, MentorSignupRequest, LoginRequest } from '@domain/types/models.js';
+import * as AuthService from '@application/services/AuthService';
+import { HttpError } from '@domain/types/errors';
+import type { UserSignupRequest, MentorSignupRequest, LoginRequest } from '@domain/types/models';
 
 /**
  * Handle user signup (User role)

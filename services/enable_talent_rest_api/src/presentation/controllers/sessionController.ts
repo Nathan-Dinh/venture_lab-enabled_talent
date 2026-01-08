@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyInstance } from 'fastify';
-import { FastifyRequest } from 'fastify/types/request.js';
+import { FastifyRequest } from 'fastify/types/request';
 
 /**
  * List user sessions

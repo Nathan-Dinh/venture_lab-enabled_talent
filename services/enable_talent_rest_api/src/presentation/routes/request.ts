@@ -2,8 +2,8 @@ import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import {
   listSessionRequestsHandler,
   respondToSessionRequestHandler,
-} from '../controllers/requestController.js';
-import { authenticate } from '../middleware/authenticate.js';
+} from '../controllers/requestController';
+import { authenticate } from '../middleware/authenticate';
 
 const mentorRequestsRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   fastify.get(

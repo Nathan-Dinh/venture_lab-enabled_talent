@@ -1,5 +1,5 @@
 import 'fastify';
-import type { JwtPayload } from './models.js';
+import type { JwtPayload } from './models';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 declare module 'fastify' {

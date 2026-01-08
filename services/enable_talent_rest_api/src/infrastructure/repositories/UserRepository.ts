@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import type { UserJourneyData, MentorJourneyData } from '@domain/types/models.js';
+import type { UserJourneyData, MentorJourneyData } from '@domain/types/models';
 
 interface UserProfile {
   id: string;
