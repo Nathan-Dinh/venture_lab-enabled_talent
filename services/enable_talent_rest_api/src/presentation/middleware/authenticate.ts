@@ -1,6 +1,16 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import type { JwtPayload } from '../../domain/types/models';
+
+// TODO: Move to shared models when auth features are fully implemented
+interface JwtPayload {
+  sub: string;
+  user_id: string;
+  email?: string;
+  user_metadata?: Record<string, any>;
+  app_metadata?: Record<string, any>;
+  iat?: number;
+  exp?: number;
+}
 
 /**
  * Authentication Middleware (Functional)

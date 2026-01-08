@@ -1,5 +1,32 @@
 import { FastifyInstance } from 'fastify';
-import type { Mentor, MentorCard, PaginatedResponse } from '@domain/types/models';
+
+// TODO: Move to shared models when mentor features are implemented
+interface MentorCard {
+  user_id: string;
+  name: string;
+  headline?: string;
+  location?: string;
+  profile_image_url?: string;
+  average_rating?: number;
+  total_sessions?: number;
+}
+
+interface Mentor extends MentorCard {
+  email: string;
+  bio?: string;
+  created_at: string;
+  skills: Array<{ skill_id: string; skill_name: string }>;
+  experience: any[];
+  education: any[];
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+}
 
 export class MentorRepository {
   constructor(private fastify: FastifyInstance) {}
