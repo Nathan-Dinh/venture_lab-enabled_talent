@@ -1,17 +1,38 @@
+import type { UserSignupRequest, MentorSignupRequest } from '~/types/models';
+
 export function useCoreAuth() {
-  async function signup() {
+  async function userSignup(payload: UserSignupRequest) {
     try {
-      const { data, error } = await useApiRequestHandler('/auth/signup').core().post();
+      const { data, error } = await useApiRequestHandler('/auth/signup/user', {
+        body: payload,
+      })
+        .core()
+        .post();
 
-      if (error) {
-        return { data: null, error };
-      }
+      if (error) return { data: null, error };
+      if (data?.success) return { data, error: null };
 
-      if (data.user) {
-        return { data: null, error: null };
-      }
+      return { data: null, error: new Error('Signup failed') };
+    } catch (err) {
+      return {
+        data: null,
+        error: err instanceof Error ? err : new Error('An unexpected error occurred'),
+      };
+    }
+  }
 
-      return { data: null, error: new Error('Login failed: No user data returned') };
+  async function mentorSignup(payload: MentorSignupRequest) {
+    try {
+      const { data, error } = await useApiRequestHandler('/auth/signup/mentor', {
+        body: payload,
+      })
+        .core()
+        .post();
+
+      if (error) return { data: null, error };
+      if (data?.success) return { data, error: null };
+
+      return { data: null, error: new Error('Signup failed') };
     } catch (err) {
       return {
         data: null,
@@ -21,6 +42,7 @@ export function useCoreAuth() {
   }
 
   return {
-    signup,
+    userSignup,
+    mentorSignup,
   };
 }
