@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:7001',
     public: {},
   },
-  modules: ['shadcn-nuxt', '@pinia/nuxt', '@nuxtjs/supabase'],
+  modules: ['@pinia/nuxt', 'shadcn-nuxt', '@nuxtjs/supabase'],
   supabase: {
     redirect: true,
     redirectOptions: {
@@ -41,3 +41,4 @@ export default defineNuxtConfig({
     componentDir: './app/components/ui',
   },
 });
+
