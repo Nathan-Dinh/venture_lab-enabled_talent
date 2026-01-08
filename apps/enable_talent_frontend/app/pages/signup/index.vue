@@ -1,14 +1,6 @@
 <template>
   <ClientOnly>
     <div class="min-h-screen flex items-center justify-center bg-gray-50">
-      <CustomAlert
-        :show="showAlert"
-        :message="alertMessage"
-        :title="alertTitle"
-        :type="alertType"
-        @close="showAlert = false"
-      />
-
       <JourneyUserJourneyOverlay
         v-if="role === 'user'"
         v-model="showOverlay"
@@ -92,12 +84,21 @@
   </ClientOnly>
 </template>
 
-<script setup>
+<script lang="ts" setup>
+import type {
+  UserSignupRequest,
+  MentorSignupRequest,
+  UserJourneyData,
+  MentorJourneyData,
+} from '~/types/models';
+import { useAlert } from '~/composables/useAlert';
+
 definePageMeta({
   ssr: false,
 });
 
-const { signup } = useCoreAuth();
+const { userSignup, mentorSignup } = useCoreAuth();
+const alert = useAlert();
 
 const name = ref('');
 const email = ref('');
@@ -113,11 +114,6 @@ const passwordError = ref('');
 const confirmPasswordError = ref('');
 
 const showOverlay = ref(false);
-
-const showAlert = ref(false);
-const alertMessage = ref('');
-const alertTitle = ref('');
-const alertType = ref('info');
 
 const ERROR_MESSAGES = {
   409: 'An account with this email already exists.',
@@ -161,13 +157,12 @@ const handleSignup = () => {
 
 const handleOverlayClose = () => {
   showOverlay.value = false;
-  alertTitle.value = 'Registration Cancelled';
-  alertMessage.value = 'Please complete the signup process to create your account.';
-  alertType.value = 'warning';
-  showAlert.value = true;
+  alert.warning('Please complete the signup process to create your account.', {
+    title: 'Registration Cancelled',
+  });
 };
 
-const handleError = (err, roleType) => {
+const handleError = (err: Record<string, any> | null, roleType: string) => {
   console.error(`${roleType} signup error:`, err);
 
   const status = err?.status || err?.statusCode;
@@ -176,58 +171,76 @@ const handleError = (err, roleType) => {
     error.value = 'No internet connection. Please check your network and try again.';
   } else {
     error.value =
-      ERROR_MESSAGES[status] ||
+      ERROR_MESSAGES[status as keyof typeof ERROR_MESSAGES] ||
       err?.data?.error ||
       'An unexpected error occurred. Please try again.';
   }
 };
 
-const handleUserJourneyComplete = async (journeyData = null) => {
+const handleUserJourneyComplete = async (journeyData?: UserJourneyData) => {
   error.value = '';
   isLoading.value = true;
 
   try {
-    const { data, error } = await signup({
-      password: password.value,
+    const signupPayload: UserSignupRequest = {
+      name: name.value,
       email: email.value,
+      password: password.value,
+      ...(journeyData ? { journeyData } : {}),
+    };
+
+    const { data, error: signupError } = await userSignup(signupPayload);
+
+    if (signupError) {
+      handleError(signupError, 'user');
+      return;
+    }
+
+    showOverlay.value = false;
+    alert.success(data?.message || 'Account created successfully!', {
+      title: 'Success',
+      autoDismiss: false,
     });
 
-    // if (res?.success && res?.data?.token) {
-    //   showOverlay.value = false;
-    //   await navigateTo('/dashboard');
-    // } else {
-    //   error.value = res?.error || 'Signup failed. Please try again.';
-    // }
-  } catch (err) {
+    setTimeout(() => {
+      navigateTo('/login');
+    }, 2000);
+  } catch (err: any) {
     handleError(err, 'user');
   } finally {
     isLoading.value = false;
   }
 };
 
-const handleMentorJourneyComplete = async (journeyData) => {
+const handleMentorJourneyComplete = async (journeyData?: MentorJourneyData) => {
   error.value = '';
   isLoading.value = true;
 
   try {
-    const res = await $fetch('/api/auth/signup', {
-      method: 'POST',
-      body: {
-        name: name.value,
-        email: email.value,
-        password: password.value,
-        role: 'Mentor',
-        journeyData,
-      },
+    const signupPayload: MentorSignupRequest = {
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      ...(journeyData ? { journeyData } : {}),
+    };
+
+    const { data, error: signupError } = await mentorSignup(signupPayload);
+
+    if (signupError) {
+      handleError(signupError, 'mentor');
+      return;
+    }
+
+    showOverlay.value = false;
+    alert.success(data?.message || 'Mentor account created successfully!', {
+      title: 'Success',
+      autoDismiss: false,
     });
 
-    if (res?.success && res?.data?.token) {
-      showOverlay.value = false;
-      await navigateTo('/dashboard/mentor');
-    } else {
-      error.value = res?.error || 'Signup failed. Please try again.';
-    }
-  } catch (err) {
+    setTimeout(() => {
+      navigateTo('/login');
+    }, 2000);
+  } catch (err: any) {
     handleError(err, 'mentor');
   } finally {
     isLoading.value = false;

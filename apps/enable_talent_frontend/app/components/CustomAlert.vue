@@ -40,8 +40,6 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
-
 interface Props {
   show: boolean;
   message: string;

@@ -1,17 +1,15 @@
-import type { OAuthProviderDto } from '~/types/DTOs/auth';
+import type { OAuthOptions } from '~/types/DTOs/auth';
 
 export function useOAuth() {
   const { loginWithOAuth } = useSupabaseAuth();
 
   async function signInWithGoogle(redirectTo?: string) {
-    const dto: OAuthProviderDto = {
+    const dto: OAuthOptions = {
       provider: 'google',
-      options: {
-        redirectTo,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
+      redirectTo,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
       },
     };
 

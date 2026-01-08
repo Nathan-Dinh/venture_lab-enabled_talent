@@ -44,7 +44,6 @@ export const useAlertStore = defineStore('alert', {
 
       this.alerts.push(alert);
 
-      // Auto-dismiss if enabled
       if (alert.autoDismiss) {
         setTimeout(() => {
           this.removeAlert(id);

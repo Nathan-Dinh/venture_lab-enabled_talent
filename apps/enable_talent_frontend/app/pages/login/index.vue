@@ -61,7 +61,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+
+const route = useRoute();
 
 const email = ref('');
 const password = ref('');
@@ -73,11 +75,16 @@ const successMessage = ref('');
 
 const emailError = ref('');
 
+onMounted(() => {
+  if (route.query.registered === 'true') {
+    successMessage.value = 'Account created successfully! Please login to continue.';
+  }
+});
+
 const handleLogin = async () => {
   error.value = '';
   successMessage.value = '';
 
-  // Validate fields before submission
   if (emailError.value) {
     error.value = 'Please fix the errors before submitting.';
     return;
@@ -116,13 +123,7 @@ const handleLogin = async () => {
 
     // Handle successful login
     if (res.value?.success && res.value?.data?.token) {
-      const tokenCookie = useCookie('token', {
-        maxAge: rememberMe.value ? 60 * 60 * 24 * 30 : 60 * 60 * 24, // 30 days or 1 day
-      });
-
-      tokenCookie.value = res.value.data.token;
       successMessage.value = 'Login successful! Redirecting...';
-
       setTimeout(() => {
         navigateTo('/dashboard');
       }, 1000);

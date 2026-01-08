@@ -1,17 +1,16 @@
+import type { LoginRequest, SignupRequest } from '~/types/models';
 import type {
-  SignupDto,
-  LoginDto,
-  OAuthProviderDto,
-  AuthResponseDto,
-  UserDto,
-  ResetPasswordDto,
-  UpdatePasswordDto,
+  OAuthOptions,
+  SupabaseAuthResponse,
+  SupabaseUser,
+  ResetPasswordRequest,
+  UpdatePasswordRequest,
 } from '~/types/DTOs/auth';
 
 export function useSupabaseAuth() {
   const supabase = useSupabaseClient();
 
-  async function login(dto: LoginDto): Promise<AuthResponseDto> {
+  async function login(dto: LoginRequest): Promise<SupabaseAuthResponse> {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: dto.email,
@@ -23,7 +22,7 @@ export function useSupabaseAuth() {
       }
 
       if (data.user) {
-        const user: UserDto = {
+        const user: SupabaseUser = {
           id: data.user.id,
           email: data.user.email!,
           user_metadata: data.user.user_metadata,
@@ -42,7 +41,7 @@ export function useSupabaseAuth() {
     }
   }
 
-  async function signup(userSignupDto: SignupDto) {
+  async function signup(userSignupDto: SignupRequest) {
     try {
       const { data, error } = await supabase.auth.signUp({
         email: userSignupDto.email,
@@ -60,14 +59,14 @@ export function useSupabaseAuth() {
     }
   }
 
-  async function loginWithOAuth(dto: OAuthProviderDto): Promise<AuthResponseDto<{ url: string }>> {
+  async function loginWithOAuth(dto: OAuthOptions): Promise<SupabaseAuthResponse<{ url: string }>> {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: dto.provider,
         options: {
-          redirectTo: dto.options?.redirectTo || `${window.location.origin}/auth/callback`,
-          scopes: dto.options?.scopes,
-          queryParams: dto.options?.queryParams,
+          redirectTo: dto.redirectTo || `${window.location.origin}/auth/callback`,
+          scopes: dto.scopes,
+          queryParams: dto.queryParams,
         },
       });
 
@@ -88,7 +87,7 @@ export function useSupabaseAuth() {
     }
   }
 
-  async function logout(): Promise<AuthResponseDto<{ success: boolean }>> {
+  async function logout(): Promise<SupabaseAuthResponse<{ success: boolean }>> {
     try {
       const { error } = await supabase.auth.signOut();
 
@@ -108,7 +107,7 @@ export function useSupabaseAuth() {
     }
   }
 
-  async function getCurrentUser(): Promise<AuthResponseDto> {
+  async function getCurrentUser(): Promise<SupabaseAuthResponse> {
     try {
       const { data, error } = await supabase.auth.getUser();
 
@@ -117,7 +116,7 @@ export function useSupabaseAuth() {
       }
 
       if (data.user) {
-        const user: UserDto = {
+        const user: SupabaseUser = {
           id: data.user.id,
           email: data.user.email!,
           user_metadata: data.user.user_metadata,
@@ -137,8 +136,8 @@ export function useSupabaseAuth() {
   }
 
   async function resetPassword(
-    dto: ResetPasswordDto
-  ): Promise<AuthResponseDto<{ success: boolean }>> {
+    dto: ResetPasswordRequest
+  ): Promise<SupabaseAuthResponse<{ success: boolean }>> {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(dto.email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
@@ -158,8 +157,8 @@ export function useSupabaseAuth() {
   }
 
   async function updatePassword(
-    dto: UpdatePasswordDto
-  ): Promise<AuthResponseDto<{ success: boolean }>> {
+    dto: UpdatePasswordRequest
+  ): Promise<SupabaseAuthResponse<{ success: boolean }>> {
     try {
       const { error } = await supabase.auth.updateUser({
         password: dto.newPassword,
