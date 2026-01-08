@@ -1,47 +1,37 @@
-export interface SignupDto {
-  email: string;
-  password: string;
+export type OAuthProvider =
+  | 'google'
+  | 'github'
+  | 'gitlab'
+  | 'bitbucket'
+  | 'azure'
+  | 'facebook'
+  | 'twitter'
+  | 'discord'
+  | 'twitch';
+
+export interface OAuthOptions {
+  provider: OAuthProvider;
+  redirectTo?: string;
+  scopes?: string;
+  queryParams?: Record<string, string>;
 }
 
-export interface LoginDto {
-  email: string;
-  password: string;
-}
-
-export interface OAuthProviderDto {
-  provider:
-    | 'google'
-    | 'github'
-    | 'gitlab'
-    | 'bitbucket'
-    | 'azure'
-    | 'facebook'
-    | 'twitter'
-    | 'discord'
-    | 'twitch';
-  options?: {
-    redirectTo?: string;
-    scopes?: string;
-    queryParams?: Record<string, string>;
-  };
-}
-
-export interface UserDto {
+export interface SupabaseUser {
   id: string;
   email: string;
   user_metadata?: Record<string, any>;
   created_at?: string;
 }
 
-export interface AuthResponseDto<T = UserDto> {
+export interface SupabaseAuthResponse<T = SupabaseUser> {
   data: T | null;
   error: Error | null;
 }
 
-export interface ResetPasswordDto {
+export interface ResetPasswordRequest {
   email: string;
 }
 
-export interface UpdatePasswordDto {
+export interface UpdatePasswordRequest {
   newPassword: string;
 }

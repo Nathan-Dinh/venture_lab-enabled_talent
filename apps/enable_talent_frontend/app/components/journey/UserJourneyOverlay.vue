@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UserJourneyData } from '~/types/journey';
+import type { UserJourneyData } from '~/types/models';
 
 import BaseJourneyOverlay from './BaseJourneyOverlay.vue';
 import UserPersonalInfo from './setup/UserPersonalInfo.vue';

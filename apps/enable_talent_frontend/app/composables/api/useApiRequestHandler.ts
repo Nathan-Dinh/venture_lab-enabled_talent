@@ -1,7 +1,7 @@
 import type {
-  ApiRequestOptions,
-  ApiResponse,
-  ApiRequestMethods,
+  FetchRequestOptions,
+  FetchResponse,
+  FetchMethods,
   ApiServiceMethods,
   HttpMethod,
 } from '~/types/api';
@@ -10,7 +10,7 @@ async function executeRequest<T>(
   method: HttpMethod,
   url: string,
   options: Record<string, any>
-): Promise<ApiResponse<T>> {
+): Promise<FetchResponse<T>> {
   const { data, error } = await useFetch(url, {
     ...options,
     method,
@@ -22,7 +22,7 @@ async function executeRequest<T>(
   };
 }
 
-function createRequestMethods(url: string, options: Record<string, any>): ApiRequestMethods {
+function createRequestMethods(url: string, options: Record<string, any>): FetchMethods {
   return {
     post: <T>() => executeRequest<T>('POST', url, options),
     get: <T>() => executeRequest<T>('GET', url, options),
@@ -47,7 +47,7 @@ function createRequestMethods(url: string, options: Record<string, any>): ApiReq
  */
 export function useApiRequestHandler(
   endpoint: string,
-  options: ApiRequestOptions = {}
+  options: FetchRequestOptions = {}
 ): ApiServiceMethods {
   const token = useCookie('token').value;
 

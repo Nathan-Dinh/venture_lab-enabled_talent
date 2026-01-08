@@ -77,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import type { MentorJourneyData } from '~/types/journey';
+import type { MentorJourneyData } from '~/types/models';
 
 import BaseJourneyOverlay from './BaseJourneyOverlay.vue';
 import MentorWelcome from './setup/MentorWelcome.vue';
