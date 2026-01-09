@@ -1,12 +1,12 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import {
-  UserRole,
   UserSignupSchema,
   UserSignupRequest,
   MentorSignupSchema,
   MentorSignupRequest,
 } from '@domain/types/models';
 import { HttpError } from '@domain/types/errors';
+import { assignUserRole, assignMentorRole } from '@application/util/userRole';
 
 export async function signupUser(fastify: FastifyInstance, data: UserSignupRequest): Promise<void> {
   const validationResult = UserSignupSchema.safeParse(data);
@@ -14,40 +14,36 @@ export async function signupUser(fastify: FastifyInstance, data: UserSignupReque
     throw HttpError.badRequest('Validation failed', validationResult.error.errors);
   }
 
-  const { email, password, name, journeyData } = validationResult.data;
+  const { email, password, firstName, lastName, journeyData } = validationResult.data;
 
-  // Check if user already exists
-  const existingUser = await fastify.uow.userRepository.findByEmail(email);
-  if (existingUser) {
-    throw HttpError.conflict('An account with this email already exists');
-  }
-
-  // Create user with Supabase Auth (admin API for auto-confirm)
-  const { data: authData, error: authError } = await fastify.supabase.auth.admin.createUser({
+  const { data: authData, error: authError } = await fastify.supabase.auth.signUp({
     email,
     password,
-    email_confirm: true,
-    user_metadata: {
-      name,
-      role: UserRole.USER,
-    },
   });
 
-  if (authError) {
-    throw HttpError.badRequest(authError.message);
-  }
+  if (authError) throw HttpError.badRequest(authError.message);
 
-  if (!authData.user) {
-    throw HttpError.internal('Failed to create user');
-  }
+  const user = authData.user;
+  if (!user) throw HttpError.internal('User creation failed');
 
-  // Insert journey data into user_details if provided
+  if (!user.identities || user.identities.length === 0)
+    throw HttpError.conflict('An account with this email already exists');
+
+  const userId = user.id;
+
+  await assignUserRole(fastify, userId);
+
+  await fastify.uow.userRepository.createUserProfile(userId, {
+    firstName,
+    lastName,
+    email,
+  });
+
   if (journeyData) {
-    await fastify.uow.userRepository.createUserDetails(authData.user.id, journeyData);
+    await fastify.uow.userRepository.createUserDetails(userId, journeyData);
 
-    // Update user_profile with location and timezone if provided
     if (journeyData.location || journeyData.timezone) {
-      await fastify.uow.userRepository.updateProfile(authData.user.id, {
+      await fastify.uow.userRepository.updateProfile(userId, {
         location: journeyData.location,
         timezone: journeyData.timezone,
       });
@@ -61,42 +57,41 @@ export async function signupMentor(
 ): Promise<void> {
   const validationResult = MentorSignupSchema.safeParse(data);
 
-  if (!validationResult.success)
+  if (!validationResult.success) {
     throw HttpError.badRequest('Validation failed', validationResult.error.errors);
+  }
 
-  const { email, password, name, journeyData } = validationResult.data;
+  const { email, password, firstName, lastName, journeyData } = validationResult.data;
 
-  const existingUser = await fastify.uow.userRepository.findByEmail(email);
-
-  if (existingUser) throw HttpError.conflict('An account with this email already exists');
-
-  // Create user with Supabase Auth (admin API for auto-confirm)
-  const { data: authData, error: authError } = await fastify.supabase.auth.admin.createUser({
+  const { data: authData, error: authError } = await fastify.supabase.auth.signUp({
     email,
     password,
-    email_confirm: true,
-    user_metadata: {
-      name,
-      role: UserRole.MENTOR,
-    },
   });
 
-  if (authError) {
-    throw HttpError.badRequest(authError.message);
-  }
+  if (authError) throw HttpError.badRequest(authError.message);
 
-  if (!authData.user) {
-    throw HttpError.internal('Failed to create user');
-  }
+  const user = authData.user;
+  if (!user) throw HttpError.internal('User creation failed');
 
-  // Mentors also get the User role (they can act as both)
-  await fastify.uow.userRepository.addRole(authData.user.id, UserRole.USER);
+  if (!user.identities || user.identities.length === 0)
+    throw HttpError.conflict('An account with this email already exists');
 
-  // Insert journey data into mentor_details if provided
+  const userId = user.id;
+
+  await assignUserRole(fastify, userId);
+  await assignMentorRole(fastify, userId);
+
+  await fastify.uow.userRepository.createUserProfile(userId, {
+    firstName,
+    lastName,
+    email,
+  });
+
   if (journeyData) {
-    await fastify.uow.userRepository.createMentorDetails(authData.user.id, journeyData);
+    await fastify.uow.userRepository.createMentorDetails(userId, journeyData);
+
     if (journeyData.headline || journeyData.bio || journeyData.location || journeyData.timezone) {
-      await fastify.uow.userRepository.updateProfile(authData.user.id, {
+      await fastify.uow.userRepository.updateProfile(userId, {
         headline: journeyData.headline,
         bio: journeyData.bio,
         location: journeyData.location,

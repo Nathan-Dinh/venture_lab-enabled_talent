@@ -3,7 +3,8 @@ import type { UserJourneyData, MentorJourneyData } from '@domain/types/models';
 
 interface UserProfile {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   profile_image_url?: string;
   headline?: string;
@@ -49,7 +50,7 @@ export class UserRepository {
    */
   async findById(userId: string): Promise<UserProfile | null> {
     const result = await this.fastify.pg.query<UserProfile>(
-      `SELECT id, name, email, profile_image_url, headline, bio,
+      `SELECT id, first_name, last_name, email, profile_image_url, headline, bio,
               location, timezone, created_at, updated_at
        FROM user_profile
        WHERE id = $1`,
@@ -63,13 +64,35 @@ export class UserRepository {
    */
   async findByEmail(email: string): Promise<UserProfile | null> {
     const result = await this.fastify.pg.query<UserProfile>(
-      `SELECT id, name, email, profile_image_url, headline, bio,
+      `SELECT id, first_name, last_name, email, profile_image_url, headline, bio,
               location, timezone, created_at, updated_at
        FROM user_profile
        WHERE email = $1`,
       [email]
     );
     return result.rows[0] || null;
+  }
+
+  /**
+   * Create or update user profile with basic info
+   */
+  async createUserProfile(
+    userId: string,
+    data: { firstName: string; lastName: string; email: string }
+  ): Promise<UserProfile> {
+    const { data: profile, error } = await this.fastify.supabase
+      .from('user_profile')
+      .upsert({
+        id: userId,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return profile as UserProfile;
   }
 
   /**
@@ -92,7 +115,8 @@ export class UserRepository {
   async updateProfile(
     userId: string,
     data: Partial<{
-      name: string;
+      first_name: string;
+      last_name: string;
       headline: string;
       bio: string;
       location: string;
@@ -100,7 +124,7 @@ export class UserRepository {
       profile_image_url: string;
     }>
   ): Promise<UserProfile | null> {
-    const allowedFields = ['name', 'headline', 'bio', 'location', 'timezone', 'profile_image_url'];
+    const allowedFields = ['first_name', 'last_name', 'headline', 'bio', 'location', 'timezone', 'profile_image_url'];
     const fields: string[] = ['updated_at = NOW()'];
     const values: any[] = [];
     let paramIndex = 1;
@@ -119,7 +143,7 @@ export class UserRepository {
       `UPDATE user_profile
        SET ${fields.join(', ')}
        WHERE id = $${paramIndex}
-       RETURNING id, name, email, profile_image_url, headline, bio,
+       RETURNING id, first_name, last_name, email, profile_image_url, headline, bio,
                  location, timezone, created_at, updated_at`,
       values
     );

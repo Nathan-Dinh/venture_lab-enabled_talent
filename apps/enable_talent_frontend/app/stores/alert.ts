@@ -9,7 +9,6 @@ export const useAlertStore = defineStore('alert', {
   }),
 
   getters: {
-    // Group alerts by position for rendering
     alertsByPosition: (state) => {
       const grouped: Record<AlertPosition, Alert[]> = {
         'top-left': [],
@@ -64,7 +63,6 @@ export const useAlertStore = defineStore('alert', {
       this.alerts = [];
     },
 
-    // Convenience methods
     success(message: string, options?: Partial<Omit<AlertOptions, 'message' | 'type'>>) {
       return this.addAlert({ ...options, message, type: ALERT_TYPE.SUCCESS });
     },

@@ -1,5 +1,6 @@
-import type { LoginRequest, SignupRequest } from '~/types/models';
 import type {
+  LoginRequest,
+  SignupRequest,
   OAuthOptions,
   SupabaseAuthResponse,
   SupabaseUser,

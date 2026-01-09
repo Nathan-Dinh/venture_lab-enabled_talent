@@ -29,11 +29,20 @@
           <FormRoleSelector v-model="role" label="Register as" />
 
           <FormTextInput
-            id="name"
-            v-model="name"
+            id="firstName"
+            v-model="firstName"
             type="text"
-            label="Full Name"
-            placeholder="Jane Doe"
+            label="First Name"
+            placeholder="Jane"
+            required
+          />
+
+          <FormTextInput
+            id="lastName"
+            v-model="lastName"
+            type="text"
+            label="Last Name"
+            placeholder="Doe"
             required
           />
 
@@ -100,7 +109,8 @@ definePageMeta({
 const { userSignup, mentorSignup } = useCoreAuth();
 const alert = useAlert();
 
-const name = ref('');
+const firstName = ref('');
+const lastName = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
@@ -183,7 +193,8 @@ const handleUserJourneyComplete = async (journeyData?: UserJourneyData) => {
 
   try {
     const signupPayload: UserSignupRequest = {
-      name: name.value,
+      firstName: firstName.value,
+      lastName: lastName.value,
       email: email.value,
       password: password.value,
       ...(journeyData ? { journeyData } : {}),
@@ -218,7 +229,8 @@ const handleMentorJourneyComplete = async (journeyData?: MentorJourneyData) => {
 
   try {
     const signupPayload: MentorSignupRequest = {
-      name: name.value,
+      firstName: firstName.value,
+      lastName: lastName.value,
       email: email.value,
       password: password.value,
       ...(journeyData ? { journeyData } : {}),
