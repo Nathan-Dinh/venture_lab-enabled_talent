@@ -100,14 +100,14 @@ import type {
   UserJourneyData,
   MentorJourneyData,
 } from '~/types/models';
+
+import { ERROR_MESSAGES } from '~/constants';
+
 import { useAlert } from '~/composables/useAlert';
 
 definePageMeta({
   ssr: false,
 });
-
-const { userSignup, mentorSignup } = useCoreAuth();
-const alert = useAlert();
 
 const firstName = ref('');
 const lastName = ref('');
@@ -124,22 +124,14 @@ const passwordError = ref('');
 const confirmPasswordError = ref('');
 
 const showOverlay = ref(false);
-
-const ERROR_MESSAGES = {
-  409: 'An account with this email already exists.',
-  400: 'Invalid signup information. Please check your details.',
-  429: 'Too many signup attempts. Please try again later.',
-  500: 'Server error. Please try again later.',
-};
-
 const hasFormErrors = computed(
   () => !!emailError.value || !!passwordError.value || !!confirmPasswordError.value
 );
 
 const buttonClasses = computed(() =>
   role.value === 'mentor'
-    ? 'bg-linear-to-r from-purple-600 to-amber-600 hover:from-purple-700 hover:to-amber-700'
-    : 'bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+    ? 'bg-orange-500 hover:bg-orange-600'
+    : 'bg-blue-600 hover:bg-blue-700'
 );
 
 const buttonText = computed(() => {
@@ -167,7 +159,7 @@ const handleSignup = () => {
 
 const handleOverlayClose = () => {
   showOverlay.value = false;
-  alert.warning('Please complete the signup process to create your account.', {
+  useAlert().warning('Please complete the signup process to create your account.', {
     title: 'Registration Cancelled',
   });
 };
@@ -200,7 +192,7 @@ const handleUserJourneyComplete = async (journeyData?: UserJourneyData) => {
       ...(journeyData ? { journeyData } : {}),
     };
 
-    const { data, error: signupError } = await userSignup(signupPayload);
+    const { data, error: signupError } = await useCoreAuth().userSignup(signupPayload);
 
     if (signupError) {
       handleError(signupError, 'user');
@@ -208,7 +200,7 @@ const handleUserJourneyComplete = async (journeyData?: UserJourneyData) => {
     }
 
     showOverlay.value = false;
-    alert.success(data?.message || 'Account created successfully!', {
+    useAlert().success(data?.message || 'Account created successfully!', {
       title: 'Success',
       autoDismiss: false,
     });
@@ -236,7 +228,7 @@ const handleMentorJourneyComplete = async (journeyData?: MentorJourneyData) => {
       ...(journeyData ? { journeyData } : {}),
     };
 
-    const { data, error: signupError } = await mentorSignup(signupPayload);
+    const { data, error: signupError } = await useCoreAuth().mentorSignup(signupPayload);
 
     if (signupError) {
       handleError(signupError, 'mentor');
@@ -244,7 +236,7 @@ const handleMentorJourneyComplete = async (journeyData?: MentorJourneyData) => {
     }
 
     showOverlay.value = false;
-    alert.success(data?.message || 'Mentor account created successfully!', {
+    useAlert().success(data?.message || 'Mentor account created successfully!', {
       title: 'Success',
       autoDismiss: false,
     });

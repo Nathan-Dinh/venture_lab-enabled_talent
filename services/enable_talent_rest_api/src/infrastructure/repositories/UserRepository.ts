@@ -124,7 +124,15 @@ export class UserRepository {
       profile_image_url: string;
     }>
   ): Promise<UserProfile | null> {
-    const allowedFields = ['first_name', 'last_name', 'headline', 'bio', 'location', 'timezone', 'profile_image_url'];
+    const allowedFields = [
+      'first_name',
+      'last_name',
+      'headline',
+      'bio',
+      'location',
+      'timezone',
+      'profile_image_url',
+    ];
     const fields: string[] = ['updated_at = NOW()'];
     const values: any[] = [];
     let paramIndex = 1;
@@ -155,10 +163,7 @@ export class UserRepository {
    * Delete user profile
    */
   async delete(userId: string): Promise<boolean> {
-    const result = await this.fastify.pg.query(
-      `DELETE FROM user_profile WHERE id = $1`,
-      [userId]
-    );
+    const result = await this.fastify.pg.query(`DELETE FROM user_profile WHERE id = $1`, [userId]);
     return (result.rowCount || 0) > 0;
   }
 
@@ -234,12 +239,7 @@ export class UserRepository {
         user_id, expertise, hourly_rate, years_experience
       ) VALUES ($1, $2, $3, $4)
       RETURNING *`,
-      [
-        userId,
-        data.expertise || [],
-        data.hourlyRate || null,
-        yearsExperience,
-      ]
+      [userId, data.expertise || [], data.hourlyRate || null, yearsExperience]
     );
     return result.rows[0];
   }

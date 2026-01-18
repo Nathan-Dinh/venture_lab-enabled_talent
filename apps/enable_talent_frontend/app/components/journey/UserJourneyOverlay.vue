@@ -108,7 +108,6 @@ const stepLabels = ['Personal Info', 'Career Goals', 'Skills & Learning', 'Prefe
 const formData = reactive<UserJourneyData>({
   currentRole: '',
   experience: '',
-  location: '',
   goals: '',
   interests: [],
   skills: [],
@@ -148,8 +147,23 @@ const previousStep = () => {
   }
 };
 
+const resetJourney = () => {
+  currentStep.value = 1;
+  validationError.value = '';
+  formData.currentRole = '';
+  formData.experience = '';
+  formData.goals = '';
+  formData.interests = [];
+  formData.skills = [];
+  formData.learningStyle = '';
+  formData.timezone = '';
+  formData.budget = '';
+  formData.frequency = '';
+};
+
 const handleClose = () => {
   show.value = false;
+  resetJourney();
   emit('close');
 };
 
@@ -158,11 +172,13 @@ const completeJourney = async () => {
   validationError.value = '';
   show.value = false;
   await props.onComplete(formData);
+  resetJourney();
   emit('close');
 };
 
 const skipJourney = async () => {
   show.value = false;
+  resetJourney();
   await props.onComplete();
   emit('close');
 };
