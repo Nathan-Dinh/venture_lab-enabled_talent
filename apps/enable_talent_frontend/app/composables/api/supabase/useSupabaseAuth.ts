@@ -1,6 +1,5 @@
 import type {
   LoginRequest,
-  SignupRequest,
   OAuthOptions,
   SupabaseAuthResponse,
   SupabaseUser,
@@ -34,24 +33,6 @@ export function useSupabaseAuth() {
       }
 
       return { data: null, error: new Error('Login failed: No user data returned') };
-    } catch (err) {
-      return {
-        data: null,
-        error: err instanceof Error ? err : new Error('An unexpected error occurred'),
-      };
-    }
-  }
-
-  async function signup(userSignupDto: SignupRequest) {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: userSignupDto.email,
-        password: userSignupDto.password,
-      });
-
-      if (error) return { data: null, error };
-
-      return { data, error: null };
     } catch (err) {
       return {
         data: null,
@@ -108,34 +89,6 @@ export function useSupabaseAuth() {
     }
   }
 
-  async function getCurrentUser(): Promise<SupabaseAuthResponse> {
-    try {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        return { data: null, error };
-      }
-
-      if (data.user) {
-        const user: SupabaseUser = {
-          id: data.user.id,
-          email: data.user.email!,
-          user_metadata: data.user.user_metadata,
-          created_at: data.user.created_at,
-        };
-
-        return { data: user, error: null };
-      }
-
-      return { data: null, error: new Error('No user found') };
-    } catch (err) {
-      return {
-        data: null,
-        error: err instanceof Error ? err : new Error('An unexpected error occurred'),
-      };
-    }
-  }
-
   async function resetPassword(
     dto: ResetPasswordRequest
   ): Promise<SupabaseAuthResponse<{ success: boolean }>> {
@@ -182,9 +135,7 @@ export function useSupabaseAuth() {
     login,
     loginWithOAuth,
     logout,
-    getCurrentUser,
     resetPassword,
     updatePassword,
-    signup,
   };
 }

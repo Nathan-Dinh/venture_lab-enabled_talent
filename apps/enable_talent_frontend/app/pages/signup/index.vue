@@ -124,14 +124,13 @@ const passwordError = ref('');
 const confirmPasswordError = ref('');
 
 const showOverlay = ref(false);
+const journeyCompleted = ref(false);
 const hasFormErrors = computed(
   () => !!emailError.value || !!passwordError.value || !!confirmPasswordError.value
 );
 
 const buttonClasses = computed(() =>
-  role.value === 'mentor'
-    ? 'bg-orange-500 hover:bg-orange-600'
-    : 'bg-blue-600 hover:bg-blue-700'
+  role.value === 'mentor' ? 'bg-orange-500 hover:bg-orange-600' : 'bg-blue-600 hover:bg-blue-700'
 );
 
 const buttonText = computed(() => {
@@ -159,9 +158,11 @@ const handleSignup = () => {
 
 const handleOverlayClose = () => {
   showOverlay.value = false;
-  useAlert().warning('Please complete the signup process to create your account.', {
-    title: 'Registration Cancelled',
-  });
+  if (!journeyCompleted.value) {
+    useAlert().warning('Please complete the signup process to create your account.', {
+      title: 'Registration Cancelled',
+    });
+  }
 };
 
 const handleError = (err: Record<string, any> | null, roleType: string) => {
@@ -199,10 +200,10 @@ const handleUserJourneyComplete = async (journeyData?: UserJourneyData) => {
       return;
     }
 
+    journeyCompleted.value = true;
     showOverlay.value = false;
     useAlert().success(data?.message || 'Account created successfully!', {
       title: 'Success',
-      autoDismiss: false,
     });
 
     setTimeout(() => {
@@ -235,10 +236,10 @@ const handleMentorJourneyComplete = async (journeyData?: MentorJourneyData) => {
       return;
     }
 
+    journeyCompleted.value = true;
     showOverlay.value = false;
     useAlert().success(data?.message || 'Mentor account created successfully!', {
       title: 'Success',
-      autoDismiss: false,
     });
 
     setTimeout(() => {
